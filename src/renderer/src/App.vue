@@ -8,6 +8,7 @@ const VIEWID = '2'
 const HOST = '192.168.31.52'
 const currentID = ref(VIEWID)
 
+
 const peer = new Peer(currentID.value, {
   host: HOST,
   port: 9000
@@ -63,6 +64,7 @@ const connect = () => {
     const localStream: MediaStream = await getLocalStream()
     const call = peer.call(MAINID, localStream)
     call.on('stream', (stream) => {
+      connect2PeerFlag.value = true
       remoteViewRef.value.srcObject = stream
     })
   }, 1000)
