@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {DataConnection, Peer} from 'peerjs'
-import {ref, watch} from 'vue'
+import {Peer} from 'peerjs'
+import {ref} from 'vue'
+import _ from 'lodash'
 
 const MAINID = '1'
 const VIEWID = '2'
 const HOST = '192.168.31.52'
 const currentID = ref(VIEWID)
-let peerConn: DataConnection
 
 const peer = new Peer(currentID.value, {
   host: HOST,
@@ -25,8 +25,11 @@ peer.on('disconnected', () => {
 
 // 与peer
 peer.on('connection', async (conn) => {
-  peerConn = conn
   connect2PeerFlag.value = true
+  conn.on('data', function (data) {
+    console.log('Received', data);
+  });
+
   conn.on('close', () => {
     connect2PeerFlag.value = false
   })
@@ -53,18 +56,48 @@ const getLocalStream = () => {
     audio: false,
   })
 }
-
+let conn
 const connect = () => {
-  peer.connect(MAINID)
-  watch(peerConn, async (newVal) => {
-    if (newVal) {
-      const localStream: MediaStream = await getLocalStream()
-      const call = peer.call(MAINID, localStream)
-      call.on('stream', (stream) => {
-        remoteViewRef.value.srcObject = stream
-      })
+  conn = peer.connect(MAINID)
+  setTimeout(async () => {
+    const localStream: MediaStream = await getLocalStream()
+    const call = peer.call(MAINID, localStream)
+    call.on('stream', (stream) => {
+      remoteViewRef.value.srcObject = stream
+    })
+  }, 1000)
+}
+
+
+const handleEvent = _.throttle((e) => {
+  if (currentID.value === VIEWID && connect2PeerFlag.value) {
+    const msg = getMsg(e)
+    conn.send(msg)
+  }
+}, 20)
+let mousedownFlag = false;
+const getMsg = (e) => {
+  const {type, clientX, clientY} = e;
+  let ansType = type;
+  if (type === 'mousedown') {
+    mousedownFlag = true;
+  } else if (type === 'mouseup') {
+    mousedownFlag = false;
+  } else if (type === 'mousemove' && mousedownFlag) {
+    // 鼠标按下左键且拖动。
+    ansType = 'dragMouse'
+  }
+  const ratio = 1
+  const deltaX = 0
+  const deltaY = 0
+  return {
+    type: 'operate',
+    data: {
+      mouseType: ansType,
+      clientX: (ratio * (clientX - deltaX)).toFixed(0),
+      clientY: (ratio * (clientY - deltaY)).toFixed(0)
     }
-  })
+  }
 }
 
 </script>
@@ -76,7 +109,14 @@ const connect = () => {
     <template v-if="currentID === VIEWID">
       <button @click="connect">连接到主控</button>
     </template>
-    <video ref="remoteViewRef" autoplay playsinline muted style="width: 500px; height: 500px"></video>
+    <video ref="remoteViewRef"
+           autoplay playsinline muted
+           style="width: 1000px; height: 1000px"
+           @click="handleEvent"
+           @mousedown="handleEvent"
+           @mousemove="handleEvent"
+           @mouseup="handleEvent"
+    ></video>
   </div>
 </template>
 
