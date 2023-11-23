@@ -1,5 +1,6 @@
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 import { BasePeer } from './BasePeer'
+import { PeerMsgType } from '../../types'
 
 export class ServerPeer extends BasePeer {
   peer: Peer | null = null
@@ -23,6 +24,15 @@ export class ServerPeer extends BasePeer {
     this.addListen()
   }
 
+  map2ScreenPosition(x: number, y: number) {
+    const screenWidth = window.screen.width
+    const screenHeight = window.screen.height
+    return {
+      x: screenWidth * x,
+      y: screenHeight * y
+    }
+  }
+
   addListen() {
     this.peer!.on('open', () => {
       console.log('connect success')
@@ -34,7 +44,14 @@ export class ServerPeer extends BasePeer {
     this.peer!.on('connection', (conn) => {
       this.conn = conn
       this.conn.on('data', (data) => {
-        console.log(data)
+        const {
+          type,
+          data: { x, y, mouseType }
+        } = data as PeerMsgType
+        if (type === 'operate') {
+          const { x: mapX, y: mapY } = this.map2ScreenPosition(x, y)
+          console.log(mapX, mapY)
+        }
       })
     })
 
