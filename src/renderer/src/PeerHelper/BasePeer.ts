@@ -1,10 +1,10 @@
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
-import { PeerMsgType } from '../../types'
+import { PeerMsgType } from '../../../types'
 
 export class BasePeer {
   MAINID = '1'
   VIEWID = '2'
-  HOST: string = '192.168.3.243'
+  HOST: string = '192.168.31.52'
   PORT: number = 9000
   connectState = {
     connect2Server: false,

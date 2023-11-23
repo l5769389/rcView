@@ -1,6 +1,6 @@
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 import {BasePeer} from "./BasePeer";
-import {PeerMsgType} from "../../types";
+import {PeerMsgType} from "../../../types";
 
 export class ClientPeer extends BasePeer {
     peer: Peer | null = null

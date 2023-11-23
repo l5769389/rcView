@@ -7,4 +7,4 @@ interface PeerMsgType {
   }
 }
 
-export { PeerMsgType }
+export type { PeerMsgType }

@@ -79,3 +79,4 @@ const peerHelper = new ServerPeer((state) => {
 </template>
 
 <style lang="less"></style>
+../../main/types
