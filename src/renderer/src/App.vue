@@ -2,11 +2,12 @@
 import { onMounted, ref } from 'vue'
 import _ from 'lodash'
 import type { PeerMsgType } from '../types'
-import {ClientPeer} from "./PeerHelper/ClientPeer";
-type getMsgType = (e: MouseEvent) => PeerMsgType
+import { ClientPeer } from './PeerHelper/ClientPeer'
 
+type getMsgType = (e: MouseEvent) => PeerMsgType
 const currentRole = ref('view')
 const remoteViewRef = ref()
+window.electron.ipcRenderer.send('abc', 123)
 
 const handleEvent = _.throttle((e) => {
   if (peerHelper.connectState.connect2Peer) {

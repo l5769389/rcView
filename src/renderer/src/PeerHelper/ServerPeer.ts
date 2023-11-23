@@ -1,7 +1,6 @@
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 import { BasePeer } from './BasePeer'
 import { PeerMsgType } from '../../types'
-import robot from 'robotjs'
 
 export class ServerPeer extends BasePeer {
   peer: Peer | null = null
@@ -70,33 +69,33 @@ export class ServerPeer extends BasePeer {
   }
 
   robotOp(type, clientX, clientY) {
-    if (type === 'mousemove') {
-      robot.moveMouse(clientX, clientY)
-    } else if (type === 'mousedown') {
-      console.log('down')
-      robot.mouseToggle('down')
-    } else if (type === 'mouseup') {
-      console.log('up')
-      robot.mouseToggle('up')
-    } else if (type === 'dragMouse') {
-      console.log('drag')
-      robot.dragMouse(clientX, clientY)
-    } else if (type === 'click') {
-      robot.mouseClick()
-    } else if (type === 'keydown') {
-      // console.log(`tap: ${key}`)
-      // let tapkey = ''
-      // if (key.length === 1) {
-      //   tapkey = key
-      // } else {
-      //   tapkey = key.toLocaleLowerCase()
-      // }
-      // try {
-      //   robot.keyTap(tapkey)
-      // } catch (e) {
-      //   console.log(`${tapkey} is error`)
-      //   console.log(e)
-      // }
-    }
+    // if (type === 'mousemove') {
+    //   robot.moveMouse(clientX, clientY)
+    // } else if (type === 'mousedown') {
+    //   console.log('down')
+    //   robot.mouseToggle('down')
+    // } else if (type === 'mouseup') {
+    //   console.log('up')
+    //   robot.mouseToggle('up')
+    // } else if (type === 'dragMouse') {
+    //   console.log('drag')
+    //   robot.dragMouse(clientX, clientY)
+    // } else if (type === 'click') {
+    //   robot.mouseClick()
+    // } else if (type === 'keydown') {
+    //   // console.log(`tap: ${key}`)
+    //   // let tapkey = ''
+    //   // if (key.length === 1) {
+    //   //   tapkey = key
+    //   // } else {
+    //   //   tapkey = key.toLocaleLowerCase()
+    //   // }
+    //   // try {
+    //   //   robot.keyTap(tapkey)
+    //   // } catch (e) {
+    //   //   console.log(`${tapkey} is error`)
+    //   //   console.log(e)
+    //   // }
+    // }
   }
 }
