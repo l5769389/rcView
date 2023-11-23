@@ -26,7 +26,8 @@
     "electron": "^27.1.0",
     "lodash": "^4.17.21",
     "peerjs": "^1.5.1",
-    "rebuild": "^0.1.2"
+    "rebuild": "^0.1.2",
+    "robotjs": "^0.6.0"
   },
   "devDependencies": {
     "@electron-toolkit/eslint-config": "^1.0.1",
