@@ -2,6 +2,44 @@ import { app, shell, BrowserWindow, ipcMain } from 'electron'
 import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
+import robot from 'robotjs'
+import type { PeerMsgType } from '../types/'
+ipcMain.addListener('robotOp', (e, msg) => {
+  console.log(msg)
+  robotOp(msg)
+})
+
+const robotOp = (msg) => {
+  const {mouseType: type, x: clientX, y : clientY} = msg
+  if (type === 'mousemove') {
+    robot.moveMouse(clientX, clientY)
+  } else if (type === 'mousedown') {
+    console.log('down')
+    robot.mouseToggle('down')
+  } else if (type === 'mouseup') {
+    console.log('up')
+    robot.mouseToggle('up')
+  } else if (type === 'dragMouse') {
+    console.log('drag')
+    robot.dragMouse(clientX, clientY)
+  } else if (type === 'click') {
+    robot.mouseClick()
+  } else if (type === 'keydown') {
+    // console.log(`tap: ${key}`)
+    // let tapkey = ''
+    // if (key.length === 1) {
+    //   tapkey = key
+    // } else {
+    //   tapkey = key.toLocaleLowerCase()
+    // }
+    // try {
+    //   robot.keyTap(tapkey)
+    // } catch (e) {
+    //   console.log(`${tapkey} is error`)
+    //   console.log(e)
+    // }
+  }
+}
 
 function createWindow(): void {
   // Create the browser window.
@@ -13,7 +51,7 @@ function createWindow(): void {
     ...(process.platform === 'linux' ? { icon } : {}),
     webPreferences: {
       preload: join(__dirname, '../preload/index.js'),
-      sandbox: false,
+      sandbox: false
     }
   })
 
