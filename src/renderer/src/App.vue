@@ -1,14 +1,16 @@
 <script setup lang="ts">
 import { onMounted, ref } from 'vue'
 import _ from 'lodash'
-import type { PeerMsgType } from '../types'
-import {ServerPeer} from "./PeerHelper/ServerPeer";
+import {PeerMsgType} from "../../types";
+import {ClientPeer} from "./PeerHelper/ClientPeer";
 type getMsgType = (e: MouseEvent) => PeerMsgType
 
-type getMsgType = (e: MouseEvent) => PeerMsgType
 const currentRole = ref('view')
 const remoteViewRef = ref()
-window.electron.ipcRenderer.send('abc', 123)
+
+const peerHelper = new ClientPeer((state) => {
+  Object.assign(connectState.value, state)
+})
 
 const handleEvent = _.throttle((e) => {
   if (peerHelper.connectState.connect2Peer) {
@@ -56,9 +58,7 @@ const connectState = ref({
   connect2Server: false,
   connect2Peer: false
 })
-const peerHelper = new ServerPeer((state) => {
-  Object.assign(connectState.value, state)
-})
+
 
 </script>
 
@@ -81,4 +81,3 @@ const peerHelper = new ServerPeer((state) => {
 </template>
 
 <style lang="less"></style>
-../../main/types

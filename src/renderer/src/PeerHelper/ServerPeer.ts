@@ -1,17 +1,18 @@
-import { DataConnection, MediaConnection, Peer } from 'peerjs'
-import { BasePeer } from './BasePeer'
-import { PeerMsgType } from '../../../types'
+import {DataConnection, MediaConnection, Peer} from 'peerjs'
+import {BasePeer} from './BasePeer'
+import type {PeerMsgType} from "../../../types.ts";
+
 
 export class ServerPeer extends BasePeer {
   peer: Peer | null = null
   call: MediaConnection | null = null
   conn: DataConnection | null = null
-  connectStateChangeCb: Function = () => {}
+
   currentRole: string
 
-  constructor(connectStateChangeCb = () => {}) {
-    super()
-    this.connectStateChangeCb = connectStateChangeCb
+  constructor(connectStateChangeCb = () => {
+  }) {
+    super(connectStateChangeCb)
     this.currentRole = this.MAINID
     this.connect2Server()
   }
@@ -46,10 +47,10 @@ export class ServerPeer extends BasePeer {
       this.conn.on('data', (data) => {
         const {
           type,
-          data: { x, y, mouseType }
+          data: {x, y, mouseType}
         } = data as PeerMsgType
         if (type === 'operate') {
-          const { x: mapX, y: mapY } = this.map2ScreenPosition(x, y)
+          const {x: mapX, y: mapY} = this.map2ScreenPosition(x, y)
           this.robotOp({
             mouseType,
             x: mapX,
@@ -73,6 +74,6 @@ export class ServerPeer extends BasePeer {
   }
 
   robotOp(msg) {
-    window.electron.ipcRenderer.send('robotOp', msg)
+    window.Electron.ipcRenderer.send('robotOp', msg)
   }
 }
