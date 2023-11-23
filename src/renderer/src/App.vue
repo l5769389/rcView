@@ -55,7 +55,6 @@ const connectState = ref({
   connect2Peer: false
 })
 const peerHelper = new ClientPeer((state) => {
-
   Object.assign(connectState.value, state)
 })
 
