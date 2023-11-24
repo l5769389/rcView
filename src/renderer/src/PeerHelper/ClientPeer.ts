@@ -1,6 +1,6 @@
-import {DataConnection, MediaConnection, Peer} from 'peerjs'
-import {BasePeer} from "./BasePeer";
-import type {PeerMsgType} from "../types";
+import { DataConnection, MediaConnection, Peer } from 'peerjs'
+import { BasePeer } from './BasePeer'
+import type { PeerMsgType } from '../types'
 
 export class ClientPeer extends BasePeer {
   peer: Peer | null = null
@@ -8,14 +8,13 @@ export class ClientPeer extends BasePeer {
   conn: DataConnection | null = null
   connectCb: Function | null = null
 
-
   constructor(connectStateChangeCb?: (state) => void) {
     super(connectStateChangeCb)
     this.connect2Server()
   }
 
   private connect2Server() {
-    this.peer = new Peer(this.VIEWID, {
+    this.peer = new Peer({
       host: this.HOST,
       port: this.PORT
     })
@@ -23,8 +22,8 @@ export class ClientPeer extends BasePeer {
   }
 
   private addListen() {
-    this.peer!.on('open', () => {
-      console.log('connect success')
+    this.peer!.on('open', (id) => {
+      console.log(`connect success, peer id: ${id}`)
       this.updateConnectState({
         connect2Server: true
       })
@@ -61,10 +60,18 @@ export class ClientPeer extends BasePeer {
       })
       this.connectCb!(stream)
     })
-    this.call?.on('close',() => {
+    this.call?.on('close', () => {
       this.updateConnectState({
         connect2Peer: false
       })
+    })
+  }
+
+  disconnect = () => {
+    this.conn?.close()
+    this.conn = null
+    this.updateConnectState({
+      connect2Peer: false
     })
   }
 

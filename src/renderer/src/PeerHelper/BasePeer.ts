@@ -2,7 +2,6 @@ import { stateChangeCbType } from './PeerTypes'
 
 export class BasePeer {
   MAINID = '1'
-  VIEWID = '2'
   HOST: string = '192.168.3.243'
   PORT: number = 9000
   connectState = {

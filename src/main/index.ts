@@ -11,8 +11,8 @@ function createWindow(): void {
   let mainWindow
   if (import.meta.env.MAIN_VITE_ROLE === 'SERVER') {
     mainWindow = new BrowserWindow({
-      width: 400,
-      height: 100,
+      width: 600,
+      height: 150,
       show: false,
       autoHideMenuBar: true,
       ...(process.platform === 'linux' ? { icon } : {}),
