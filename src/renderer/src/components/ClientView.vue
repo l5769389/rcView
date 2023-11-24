@@ -71,6 +71,7 @@ const connect = () => {
     <p>远程桌面连接状态:{{ connectState.connect2Peer }}</p>
     <button @click="connect">连接到主控</button>
     <video
+      v-if="connectState.connect2Peer"
       ref="remoteViewRef"
       autoplay
       playsinline
