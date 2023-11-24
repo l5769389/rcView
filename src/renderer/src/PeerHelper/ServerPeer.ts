@@ -1,24 +1,27 @@
-import {DataConnection, MediaConnection, Peer} from 'peerjs'
-import {BasePeer} from './BasePeer'
-import type {PeerMsgType} from "../../../types.ts";
-
+import { DataConnection, MediaConnection, Peer } from 'peerjs'
+import { BasePeer } from './BasePeer'
+import type { PeerMsgType } from '../types.ts'
+import { stateChangeCbType } from './PeerTypes'
 
 export class ServerPeer extends BasePeer {
   peer: Peer | null = null
-  call: MediaConnection | null = null
-  conn: DataConnection | null = null
+  connMap = new Map<number, DataConnection>()
+  callMap = new Map<number, MediaConnection>()
 
-  currentRole: string
-
-  constructor(connectStateChangeCb = () => {
-  }) {
+  constructor(connectStateChangeCb?: stateChangeCbType) {
     super(connectStateChangeCb)
-    this.currentRole = this.MAINID
     this.connect2Server()
   }
 
+  updateCallMap(k: number, v: MediaConnection) {
+    this.callMap.set(k, v)
+    this.updateConnectState({
+      callMap: this.connMap
+    })
+  }
+
   connect2Server() {
-    this.peer = new Peer(this.currentRole, {
+    this.peer = new Peer(this.MAINID, {
       host: this.HOST,
       port: this.PORT
     })
@@ -36,21 +39,20 @@ export class ServerPeer extends BasePeer {
 
   addListen() {
     this.peer!.on('open', () => {
-      console.log('connect success')
       this.updateConnectState({
         connect2Server: true
       })
     })
 
     this.peer!.on('connection', (conn) => {
-      this.conn = conn
-      this.conn.on('data', (data) => {
+      this.connMap.set(Date.now(), conn)
+      conn.on('data', (data) => {
         const {
           type,
-          data: {x, y, mouseType}
+          data: { x, y, mouseType }
         } = data as PeerMsgType
         if (type === 'operate') {
-          const {x: mapX, y: mapY} = this.map2ScreenPosition(x, y)
+          const { x: mapX, y: mapY } = this.map2ScreenPosition(x, y)
           this.robotOp({
             mouseType,
             x: mapX,
@@ -60,6 +62,7 @@ export class ServerPeer extends BasePeer {
       })
     })
 
+    // 与信令服务器断开
     this.peer!.on('disconnected', () => {
       this.updateConnectState({
         connect2Server: false
@@ -67,11 +70,13 @@ export class ServerPeer extends BasePeer {
     })
 
     this.peer!.on('call', async (call) => {
-      this.call = call
+      this.updateCallMap(Date.now(), call)
       const localStream: MediaStream = await this.getLocalStream()
-      this.call.answer(localStream)
+      call.answer(localStream)
     })
   }
+
+  disconnect2PeerCall() {}
 
   robotOp(msg) {
     window.Electron.ipcRenderer.send('robotOp', msg)

@@ -1,6 +1,6 @@
 import {DataConnection, MediaConnection, Peer} from 'peerjs'
 import {BasePeer} from "./BasePeer";
-import type {PeerMsgType} from "../../../types";
+import type {PeerMsgType} from "../types";
 
 export class ClientPeer extends BasePeer {
   peer: Peer | null = null
@@ -8,17 +8,14 @@ export class ClientPeer extends BasePeer {
   conn: DataConnection | null = null
   connectCb: Function | null = null
 
-  currentRole: string
 
-  constructor(connectStateChangeCb = () => {
-  }) {
+  constructor(connectStateChangeCb?: (state) => void) {
     super(connectStateChangeCb)
-    this.currentRole = this.VIEWID
     this.connect2Server()
   }
 
   private connect2Server() {
-    this.peer = new Peer(this.currentRole, {
+    this.peer = new Peer(this.VIEWID, {
       host: this.HOST,
       port: this.PORT
     })
