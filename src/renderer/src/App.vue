@@ -1,12 +1,12 @@
 <script setup lang="ts">
 import ClientView from './components/ClientView.vue'
 import ServerView from './components/ServerView.vue'
-const isServer = import.meta.env.RENDERER_VITE_ROLE
+const Role = import.meta.env.RENDERER_VITE_ROLE
 </script>
 
 <template>
   <div>
-    <ServerView v-if="isServer"/>
+    <ServerView v-if="Role === 'SERVER'"/>
     <ClientView v-else />
   </div>
 </template>
