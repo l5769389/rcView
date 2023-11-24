@@ -50,16 +50,21 @@ export class ClientPeer extends BasePeer {
     this.conn.on('open', async () => {
       const localStream: MediaStream = await this.getLocalStream()
       this.call = this.peer!.call(this.MAINID, localStream)
-      this.listenVideoStream()
+      this.addCallListen()
     })
   }
 
-  private listenVideoStream = () => {
+  private addCallListen = () => {
     this.call!.on('stream', (stream) => {
       this.updateConnectState({
         connect2Peer: true
       })
       this.connectCb!(stream)
+    })
+    this.call?.on('close',() => {
+      this.updateConnectState({
+        connect2Peer: false
+      })
     })
   }
 

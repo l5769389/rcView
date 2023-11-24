@@ -5,7 +5,6 @@ import { stateChangeCbType } from './PeerTypes'
 
 export class ServerPeer extends BasePeer {
   peer: Peer | null = null
-  connMap = new Map<number, DataConnection>()
   callMap = new Map<number, MediaConnection>()
 
   constructor(connectStateChangeCb?: stateChangeCbType) {
@@ -13,10 +12,17 @@ export class ServerPeer extends BasePeer {
     this.connect2Server()
   }
 
-  updateCallMap(k: number, v: MediaConnection) {
+  addCallMap(k: number, v: MediaConnection) {
     this.callMap.set(k, v)
     this.updateConnectState({
-      callMap: this.connMap
+      callMap: this.callMap
+    })
+  }
+
+  removeCallMap(k: number) {
+    this.callMap.delete(k)
+    this.updateConnectState({
+      callMap: this.callMap
     })
   }
 
@@ -45,7 +51,6 @@ export class ServerPeer extends BasePeer {
     })
 
     this.peer!.on('connection', (conn) => {
-      this.connMap.set(Date.now(), conn)
       conn.on('data', (data) => {
         const {
           type,
@@ -70,13 +75,18 @@ export class ServerPeer extends BasePeer {
     })
 
     this.peer!.on('call', async (call) => {
-      this.updateCallMap(Date.now(), call)
+      const timestamp = Date.now()
+      this.addCallMap(timestamp, call)
       const localStream: MediaStream = await this.getLocalStream()
       call.answer(localStream)
     })
   }
 
-  disconnect2PeerCall() {}
+  disconnect2PeerCall(key: number) {
+    const call: MediaConnection | undefined | null = this.callMap.get(key)
+    call?.close()
+    this.removeCallMap(key)
+  }
 
   robotOp(msg) {
     window.Electron.ipcRenderer.send('robotOp', msg)
