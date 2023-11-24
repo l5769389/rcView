@@ -9,13 +9,13 @@ const connectState = ref({
 })
 
 const countRef = ref(0)
-const clients = ref([1, 2])
+const clients = ref([])
 
 const server = new ServerPeer((state) => {
   console.log('cb', state)
   Object.assign(connectState.value, state)
   countRef.value = connectState.value.callMap.size
-  // clients.value = Array.from(connectState.value.callMap.keys())
+  clients.value = Array.from(connectState.value.callMap.keys())
 })
 
 const disconnect = (key: number) => {
