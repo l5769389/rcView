@@ -21,16 +21,6 @@ export class BasePeer {
     }
 
     getLocalStream = async () => {
-        // const constraint: MediaStreamConstraints = {
-        //   video: {
-        //     mandatory: {
-        //       chromeMediaSource: 'desktop'
-        //     },
-        //     optional: [{ minFrameRate: 10 }, { maxFrameRate: 90 }]
-        //   },
-        //   audio: false
-        // }
-        // return navigator.mediaDevices.getUserMedia(constraint)
         const sourceId = await window.electron.ipcRenderer.invoke('desktop')
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
