@@ -1,23 +1,29 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { reactive, ref } from 'vue'
 import _ from 'lodash'
 import { PeerMsgType } from '@renderer/types'
 import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 
 type getMsgType = (e: MouseEvent) => PeerMsgType
+import { ArrowMove20Filled } from '@vicons/fluent'
+import { Eye } from '@vicons/fa'
 
 const remoteViewRef = ref()
+const isOperatorRef = ref(true)
 
 const peerHelper: ClientPeer = new ClientPeer((state) => {
-  Object.assign(connectState.value, state)
+  Object.assign(connectState, state)
 })
 
-const connectState = ref({
+const connectState = reactive({
   connect2Server: false,
   connect2Peer: false
 })
 
 const handleEvent = _.throttle((e) => {
+  if (!isOperatorRef.value) {
+    return
+  }
   if (peerHelper.connectState.connect2Peer) {
     const msg = getMsg(e)
     peerHelper.sendMsg(msg)
@@ -63,20 +69,73 @@ const connect = () => {
     remoteViewRef.value.srcObject = stream
   })
 }
+
+const viewConnect = () => {
+  isOperatorRef.value = false
+  peerHelper.connect2MainPeer((stream) => {
+    remoteViewRef.value.srcObject = stream
+  })
+}
+
+const disconnect = () => {
+  peerHelper.disconnect()
+}
 </script>
 
 <template>
-  <div>
-    <p class="text-red-400 text-5xl">信令服务器连接状态：{{ connectState.connect2Server }}</p>
-    <p>远程桌面连接状态:{{ connectState.connect2Peer }}</p>
-    <button @click="connect">连接到主控</button>
+  <div class="p-[10px] pt-[20px] text-3xl">
+    <n-grid :cols="3">
+      <n-gi>
+        <span class="mr-[10px]">信令服务器连接状态：</span>
+        <n-switch size="large" disabled v-model:value="connectState.connect2Server" />
+      </n-gi>
+
+      <n-gi>
+        <span class="mr-[10px]">远程桌面连接状态:</span>
+        <n-switch size="large" disabled v-model:value="connectState.connect2Peer" />
+      </n-gi>
+
+      <n-gi>
+        <n-button
+          size="large"
+          type="primary"
+          @click="connect"
+          :disabled="connectState.connect2Peer"
+        >
+          <span class="mr-[5px]">操作主控制盒</span>
+          <n-icon size="20">
+            <arrow-move20-filled />
+          </n-icon>
+        </n-button>
+        <n-button
+          size="large"
+          type="primary"
+          @click="viewConnect"
+          :disabled="connectState.connect2Peer"
+        >
+          <span class="mr-[5px]">镜像主控制盒</span>
+          <n-icon size="20">
+            <eye />
+          </n-icon>
+        </n-button>
+        <n-button
+          size="large"
+          type="warning"
+          @click="disconnect"
+          :disabled="!connectState.connect2Peer"
+          >断开连接
+        </n-button>
+      </n-gi>
+    </n-grid>
+
     <video
-      v-if="connectState.connect2Peer"
+      class="w-full h-auto"
+      :class="isOperatorRef ? 'cursor-none' : ''"
+      v-show="connectState.connect2Peer"
       ref="remoteViewRef"
       autoplay
       playsinline
       muted
-      style="width: 100%; height: 100%"
       @click="handleEvent"
       @mousedown="handleEvent"
       @mousemove="handleEvent"
