@@ -2,7 +2,7 @@ import { stateChangeCbType } from './PeerTypes'
 
 export class BasePeer {
   MAINID = '1'
-  HOST: string = '192.168.3.243'
+  HOST: string = '192.168.31.52'
   PORT: number = 9000
   connectState = {
     connect2Server: false,
@@ -21,15 +21,26 @@ export class BasePeer {
   }
 
   getLocalStream = () => {
-    const constraint: MediaStreamConstraints = {
-      video: {
-        mandatory: {
-          chromeMediaSource: 'desktop'
-        },
-        optional: [{ minFrameRate: 10 }, { maxFrameRate: 90 }]
+    // const constraint: MediaStreamConstraints = {
+    //   video: {
+    //     mandatory: {
+    //       chromeMediaSource: 'desktop'
+    //     },
+    //     optional: [{ minFrameRate: 10 }, { maxFrameRate: 90 }]
+    //   },
+    //   audio: false
+    // }
+    // return navigator.mediaDevices.getUserMedia(constraint)
+
+    return navigator.mediaDevices.getDisplayMedia({
+      video:{
+        width:{max:1280},
+        height:{max:720},
+        frameRate:{
+          ideal:15
+        }
       },
-      audio: false
-    }
-    return navigator.mediaDevices.getUserMedia(constraint)
+      audio:false
+    })
   }
 }
