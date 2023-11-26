@@ -1,6 +1,6 @@
 import { ipcMain, desktopCapturer } from 'electron'
 import robot from 'robotjs'
-import Config from '../config/config'
+import Config from '@config/config'
 
 export const getDifferentWin = async () => {
   if (Config.ROLE === Config.SERVER) {
@@ -41,6 +41,8 @@ export const getDifferentWin = async () => {
       } else if (type === 'contextmenu') {
         console.log('right click')
         robot.mouseClick('right')
+      } else if (type === 'wheel') {
+        robot.scrollMouse(clientX, clientY)
       }
     }
   }

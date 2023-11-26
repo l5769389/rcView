@@ -6,7 +6,7 @@ import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 import { ArrowMove20Filled } from '@vicons/fluent'
 import { Eye } from '@vicons/fa'
 
-type getMsgType = (e: MouseEvent | TouchEvent, type?: string) => PeerMsgType
+type getMsgType = (e: MouseEvent | TouchEvent | WheelEvent, type?: string) => PeerMsgType
 
 const remoteViewRef = ref()
 const isOperatorRef = ref(true)
@@ -20,7 +20,7 @@ const connectState = reactive({
   connect2Peer: false
 })
 
-const handleEvent = (e: MouseEvent | TouchEvent) => {
+const handleEvent = (e: MouseEvent | TouchEvent | WheelEvent) => {
   console.log(e.type)
   if (!isOperatorRef.value) {
     return
@@ -42,23 +42,33 @@ const handleUp = (e) => {
     peerHelper.sendMsg(msg)
   }
 }
-
 let mousedownFlag = false
-
-const getMsg: getMsgType = (e: MouseEvent | TouchEvent, type = e.type) => {
+const getMsg: getMsgType = (e: WheelEvent | MouseEvent | TouchEvent, type = e.type) => {
   let clientX, clientY
-  if (e instanceof MouseEvent) {
+  if (e instanceof WheelEvent) {
+    clientX = e.deltaX
+    clientY = e.deltaY
+  } else if (e instanceof MouseEvent) {
     clientX = e.clientX
     clientY = e.clientY
-  } else {
+  } else if (e instanceof TouchEvent) {
     clientX = e.touches[0].clientX
     clientY = e.touches[0].clientY
   }
   const { x, y } = getUniformedPosition(clientX, clientY)
+  let ansType = type
+  if (type === 'mousedown') {
+    mousedownFlag = true
+  } else if (type === 'mouseup') {
+    mousedownFlag = false
+  } else if (type === 'mousemove' && mousedownFlag) {
+    // 鼠标按下左键且拖动。
+    ansType = 'dragMouse'
+  }
   const msg: PeerMsgType = {
     type: 'operate',
     data: {
-      mouseType: type,
+      mouseType: ansType,
       x,
       y
     }
@@ -191,7 +201,7 @@ const disconnect = () => {
         @mouseup="handleUp"
         @mouseleave="handleUp"
         @mouseout="handleUp"
-        @wheel="handleMove"
+        @wheel="console.log($event)"
         @contextmenu="handleEvent"
       ></video>
     </div>
