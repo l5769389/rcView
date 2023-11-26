@@ -1,12 +1,13 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import {reactive, ref} from 'vue'
 import _ from 'lodash'
-import { PeerMsgType } from '@renderer/types'
-import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
+import {PeerMsgType} from '@renderer/types'
+import {ClientPeer} from '@renderer/PeerHelper/ClientPeer'
+import {ArrowMove20Filled} from '@vicons/fluent'
+import {Eye} from '@vicons/fa'
 
 type getMsgType = (e: MouseEvent) => PeerMsgType
-import { ArrowMove20Filled } from '@vicons/fluent'
-import { Eye } from '@vicons/fa'
+
 
 const remoteViewRef = ref()
 const isOperatorRef = ref(true)
@@ -33,8 +34,8 @@ const handleEvent = _.throttle((e) => {
 let mousedownFlag = false
 
 const getMsg: getMsgType = (e: MouseEvent) => {
-  const { type, clientX, clientY } = e
-  const { x, y } = getUniformedPosition(clientX, clientY)
+  const {type, clientX, clientY} = e
+  const {x, y} = getUniformedPosition(clientX, clientY)
   let ansType = type
   if (type === 'mousedown') {
     mousedownFlag = true
@@ -56,7 +57,7 @@ const getMsg: getMsgType = (e: MouseEvent) => {
 }
 
 const getUniformedPosition = (clientX: number, clientY: number) => {
-  const { width, height, left, top } = remoteViewRef.value.getBoundingClientRect()
+  const {width, height, left, top} = remoteViewRef.value.getBoundingClientRect()
   const x = clientX - left
   const y = clientY - top
   return {
@@ -83,64 +84,67 @@ const disconnect = () => {
 </script>
 
 <template>
-  <div class="p-[10px] pt-[20px] text-3xl">
-    <n-grid :cols="3">
-      <n-gi>
-        <span class="mr-[10px]">信令服务器连接状态：</span>
-        <n-switch size="large" disabled v-model:value="connectState.connect2Server" />
-      </n-gi>
+  <div class="p-[10px] pt-[20px] text-[25px]  bg-black  w-full h-full relative overflow-hidden">
+    <div class="h-[50px] absolute top-0 left-0 bg-amber-600 w-full z-10">
+      <n-grid :cols="3">
+        <n-gi>
+          <span class="mr-[10px]">信令服务器连接状态：</span>
+          <n-switch size="large" disabled v-model:value="connectState.connect2Server"/>
+        </n-gi>
 
-      <n-gi>
-        <span class="mr-[10px]">远程桌面连接状态:</span>
-        <n-switch size="large" disabled v-model:value="connectState.connect2Peer" />
-      </n-gi>
+        <n-gi>
+          <span class="mr-[10px]">远程桌面连接状态:</span>
+          <n-switch size="large" disabled v-model:value="connectState.connect2Peer"/>
+        </n-gi>
 
-      <n-gi>
-        <n-button
-          size="large"
-          type="primary"
-          @click="connect"
-          :disabled="connectState.connect2Peer"
-        >
-          <span class="mr-[5px]">操作主控制盒</span>
-          <n-icon size="20">
-            <arrow-move20-filled />
-          </n-icon>
-        </n-button>
-        <n-button
-          size="large"
-          type="primary"
-          @click="viewConnect"
-          :disabled="connectState.connect2Peer"
-        >
-          <span class="mr-[5px]">镜像主控制盒</span>
-          <n-icon size="20">
-            <eye />
-          </n-icon>
-        </n-button>
-        <n-button
-          size="large"
-          type="warning"
-          @click="disconnect"
-          :disabled="!connectState.connect2Peer"
+        <n-gi>
+          <n-button
+              size="large"
+              type="primary"
+              @click="connect"
+              :disabled="connectState.connect2Peer"
+          >
+            <span class="mr-[5px]">操作主控制盒</span>
+            <n-icon size="20">
+              <arrow-move20-filled/>
+            </n-icon>
+          </n-button>
+          <n-button
+              size="large"
+              type="primary"
+              @click="viewConnect"
+              :disabled="connectState.connect2Peer"
+          >
+            <span class="mr-[5px]">镜像主控制盒</span>
+            <n-icon size="20">
+              <eye/>
+            </n-icon>
+          </n-button>
+          <n-button
+              size="large"
+              type="warning"
+              @click="disconnect"
+              :disabled="!connectState.connect2Peer"
           >断开连接
-        </n-button>
-      </n-gi>
-    </n-grid>
-
-    <video
-      class="w-full h-auto"
-      :class="isOperatorRef ? 'cursor-none' : ''"
-      v-show="connectState.connect2Peer"
-      ref="remoteViewRef"
-      autoplay
-      playsinline
-      muted
-      @click="handleEvent"
-      @mousedown="handleEvent"
-      @mousemove="handleEvent"
-      @mouseup="handleEvent"
-    ></video>
+          </n-button>
+        </n-gi>
+      </n-grid>
+    </div>
+    <div class="w-full h-full flex justify-center">
+            <video
+                class="h-full"
+                :class="isOperatorRef ? 'cursor-none' : ''"
+                v-show="connectState.connect2Peer"
+                ref="remoteViewRef"
+                autoplay
+                playsinline
+                muted
+                @click="handleEvent"
+                @mousedown="handleEvent"
+                @mousemove="handleEvent"
+                @mouseup="handleEvent"
+            ></video>
+    </div>
   </div>
 </template>
 
