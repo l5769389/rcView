@@ -1,4 +1,4 @@
-import {DataConnection, MediaConnection, Peer} from 'peerjs'
+import { MediaConnection, Peer} from 'peerjs'
 import {BasePeer} from './BasePeer'
 import type {PeerMsgType} from '../types.ts'
 import {stateChangeCbType} from './PeerTypes'
