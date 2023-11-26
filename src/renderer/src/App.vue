@@ -6,8 +6,6 @@ const Role = import.meta.env.RENDERER_VITE_ROLE
 </script>
 
 <template>
-  <div>
     <ServerView v-if="Role === 'SERVER'" />
     <ClientView v-else />
-  </div>
 </template>
