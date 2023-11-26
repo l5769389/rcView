@@ -21,17 +21,18 @@ export class BasePeer {
     }
 
     getLocalStream = async () => {
-        const sourceId = await window.electron.ipcRenderer.invoke('desktop')
+        const {width: screenWidth, height: screenHeight} = screen
+        const sourceId = await window["electron"].ipcRenderer.invoke('desktop')
         const stream = await navigator.mediaDevices.getUserMedia({
             audio: false,
             video: {
                 mandatory: {
                     chromeMediaSource: 'desktop',
                     chromeMediaSourceId: sourceId,
-                    minWidth: 1280,
-                    maxWidth: 1280,
-                    minHeight: 720,
-                    maxHeight: 720
+                    minWidth: screenWidth,
+                    maxWidth: screenWidth,
+                    minHeight: screenHeight,
+                    maxHeight: screenHeight
                 }
             }
         })

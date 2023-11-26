@@ -1,5 +1,6 @@
 import {ipcMain, desktopCapturer} from 'electron'
 import robot from 'robotjs'
+import {PeerMsgType} from "../renderer/src/types";
 
 export const getDifferentWin = async () => {
     if ((import.meta.env.MAIN_VITE_ROLE = 'SERVER')) {
@@ -11,7 +12,7 @@ export const getDifferentWin = async () => {
             }
         })
         const robotOp = (msg) => {
-            const {mouseType: type, x: clientX, y: clientY} = msg
+            const {mouseType: type, x: clientX, y: clientY, key} = msg
             if (type === 'mousemove') {
                 robot.moveMouse(clientX, clientY)
             } else if (type === 'mousedown') {
@@ -26,25 +27,31 @@ export const getDifferentWin = async () => {
             } else if (type === 'click') {
                 robot.mouseClick()
             } else if (type === 'keydown') {
-                // console.log(`tap: ${key}`)
-                // let tapkey = ''
-                // if (key.length === 1) {
-                //   tapkey = key
-                // } else {
-                //   tapkey = key.toLocaleLowerCase()
-                // }
-                // try {
-                //   robot.keyTap(tapkey)
-                // } catch (e) {
-                //   console.log(`${tapkey} is error`)
-                //   console.log(e)
-                // }
+                console.log(`tap: ${key}`)
+                let tapkey = ''
+                if (key.length === 1) {
+                    tapkey = key
+                } else {
+                    tapkey = key.toLocaleLowerCase()
+                }
+                try {
+                    robot.keyTap(tapkey)
+                } catch (e) {
+                    console.log(`${tapkey} is error`)
+                    console.log(e)
+                }
             }
         }
     }
 
     ipcMain.handle('desktop', async () => {
-        return await desktopCapturer.getSources({types: ['screen']}).then(async sources => {
+        return await desktopCapturer.getSources({
+            types: ['screen'],
+            thumbnailSize: {
+                width: 0,
+                height: 0
+            }
+        }).then(async sources => {
             if (sources.length >= 1) {
                 return sources[0].id
             } else {
