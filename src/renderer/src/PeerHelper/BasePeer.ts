@@ -36,7 +36,11 @@ export class BasePeer {
           maxWidth: width,
           minHeight: height,
           maxHeight: height
-        }
+        },
+          optional: [
+              {minFrameRate: 15},
+              {maxFrameRate: 30}
+          ]
       }
     })
     return stream

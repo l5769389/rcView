@@ -24,8 +24,6 @@ export const getDifferentWin = async () => {
       } else if (type === 'dragMouse') {
         console.log('drag')
         robot.dragMouse(clientX, clientY)
-      } else if (type === 'click') {
-        robot.mouseClick()
       } else if (type === 'keydown') {
         console.log(`tap: ${key}`)
         let tapkey = ''
@@ -40,6 +38,9 @@ export const getDifferentWin = async () => {
           console.log(`${tapkey} is error`)
           console.log(e)
         }
+      } else if (type === 'contextmenu') {
+        console.log('right click')
+        robot.mouseClick('right')
       }
     }
   }
