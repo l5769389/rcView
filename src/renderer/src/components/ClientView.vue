@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import {reactive, ref} from 'vue'
+import {reactive, ref, watch} from 'vue'
 import _ from 'lodash'
 import {PeerMsgType} from '@renderer/types'
 import {ClientPeer} from '@renderer/PeerHelper/ClientPeer'
 import {ArrowMove20Filled} from '@vicons/fluent'
 import {Eye} from '@vicons/fa'
 
-type getMsgType = (e: MouseEvent) => PeerMsgType
+type getMsgType = (e: MouseEvent, type?: string) => PeerMsgType
 
 
 const remoteViewRef = ref()
@@ -21,7 +21,7 @@ const connectState = reactive({
   connect2Peer: false
 })
 
-const handleEvent = _.throttle((e) => {
+const handleEvent = (e) => {
   if (!isOperatorRef.value) {
     return
   }
@@ -29,12 +29,23 @@ const handleEvent = _.throttle((e) => {
     const msg = getMsg(e)
     peerHelper.sendMsg(msg)
   }
-}, 20)
+}
+
+const handleUp = (e) => {
+  if (!isOperatorRef.value) {
+    return
+  }
+  if (peerHelper.connectState.connect2Peer) {
+    const msg = getMsg(e, 'mouseup')
+    peerHelper.sendMsg(msg)
+  }
+}
+
 
 let mousedownFlag = false
 
-const getMsg: getMsgType = (e: MouseEvent) => {
-  const {type, clientX, clientY} = e
+const getMsg: getMsgType = (e: MouseEvent, type = e.type) => {
+  const {clientX, clientY} = e
   const {x, y} = getUniformedPosition(clientX, clientY)
   let ansType = type
   if (type === 'mousedown') {
@@ -77,6 +88,41 @@ const viewConnect = () => {
     remoteViewRef.value.srcObject = stream
   })
 }
+
+watch(() => connectState.connect2Peer, (newVal) => {
+  if (newVal) {
+    listenKeyInput()
+  } else {
+    removeKeyInputListen()
+  }
+})
+
+const listenKeyInput = () => {
+  document.addEventListener('keydown', handleKeyEvent)
+}
+const removeKeyInputListen = () => {
+  document.removeEventListener('keydown', handleKeyEvent)
+}
+
+const getKeydownMsg = (e) => {
+  const {key} = e;
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: 'keydown',
+      x: -1,
+      y: -1,
+      key: key
+    }
+  }
+  return msg
+}
+
+const handleKeyEvent = e => {
+  const msg = getKeydownMsg(e)
+  peerHelper.sendMsg(msg)
+}
+
 
 const disconnect = () => {
   peerHelper.disconnect()
@@ -131,19 +177,21 @@ const disconnect = () => {
       </n-grid>
     </div>
     <div class="w-full h-full flex justify-center">
-            <video
-                class="h-full"
-                :class="isOperatorRef ? 'cursor-none' : ''"
-                v-show="connectState.connect2Peer"
-                ref="remoteViewRef"
-                autoplay
-                playsinline
-                muted
-                @click="handleEvent"
-                @mousedown="handleEvent"
-                @mousemove="handleEvent"
-                @mouseup="handleEvent"
-            ></video>
+      <video
+          class="h-full"
+          :class="isOperatorRef ? 'cursor-none' : ''"
+          v-show="connectState.connect2Peer"
+          ref="remoteViewRef"
+          autoplay
+          playsinline
+          muted
+          @click="handleEvent"
+          @mousedown="handleEvent"
+          @mousemove="handleEvent"
+          @mouseup="handleUp"
+          @mouseleave="handleUp"
+          @mouseout="handleUp"
+      ></video>
     </div>
   </div>
 </template>

@@ -3,7 +3,8 @@ interface PeerMsgType {
   data: {
     x: number
     y: number
-    mouseType: string
+    mouseType: string,
+    key?: string
   }
 }
 
