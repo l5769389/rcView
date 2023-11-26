@@ -1,7 +1,7 @@
 export default class Config {
   static readonly SERVER = 'SERVER'
   static readonly CLIENT = 'CLIENT'
-  static readonly ROLE = this.SERVER
+  static readonly ROLE = this.CLIENT
 
   static readonly SERVER_ID = '1'
 
