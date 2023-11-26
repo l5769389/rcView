@@ -50,6 +50,7 @@ export class ServerPeer extends BasePeer {
       })
     })
 
+
     this.peer!.on('connection', (conn) => {
       conn.on('data', (data) => {
         const {
@@ -74,9 +75,16 @@ export class ServerPeer extends BasePeer {
       })
     })
 
+
     this.peer!.on('call', async (call) => {
-      const timestamp = Date.now()
-      this.addCallMap(timestamp, call)
+      const callKey = Date.now()
+      call.on('close', () => {
+        this.disconnect2PeerCall(callKey)
+      })
+      call.on('error',() => {
+        this.disconnect2PeerCall(callKey)
+      })
+      this.addCallMap(callKey, call)
       const localStream: MediaStream = await this.getLocalStream()
       call.answer(localStream)
     })
@@ -89,6 +97,6 @@ export class ServerPeer extends BasePeer {
   }
 
   robotOp(msg) {
-    window.Electron.ipcRenderer.send('robotOp', msg)
+    window.electron.ipcRenderer.send('robotOp', msg)
   }
 }

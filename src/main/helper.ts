@@ -1,10 +1,13 @@
 import { ipcMain } from 'electron'
-
+import robot from 'robotjs'
 export const getDifferentWin = async () => {
   if ((import.meta.env.MAIN_VITE_ROLE = 'SERVER')) {
-    const robot = await import('robotjs')
     ipcMain.addListener('robotOp', (e: any, msg) => {
-      robotOp(msg)
+      try {
+        robotOp(msg)
+      } catch (e) {
+        console.log(e)
+      }
     })
     const robotOp = (msg) => {
       const { mouseType: type, x: clientX, y: clientY } = msg

@@ -17,6 +17,7 @@ const server = new ServerPeer((state) => {
   Object.assign(connectState.value, state)
   countRef.value = connectState.value.callMap.size
   clients.value = Array.from(connectState.value.callMap.keys())
+  console.log(clients.value)
 })
 
 const disconnect = (key: number) => {
