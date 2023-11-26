@@ -43,14 +43,13 @@ export const getDifferentWin = async () => {
         }
     }
 
-    ipcMain.handle('desktop', () => {
-        desktopCapturer.getSources({types: ['window', 'screen']}).then(async sources => {
-            for (const source of sources) {
-                if (source.name === 'Electron') {
-                    return source.id
-                }
+    ipcMain.handle('desktop', async () => {
+        return await desktopCapturer.getSources({types: ['screen']}).then(async sources => {
+            if (sources.length >= 1) {
+                return sources[0].id
+            } else {
+                return -1
             }
-            return -1
         })
     })
 }
