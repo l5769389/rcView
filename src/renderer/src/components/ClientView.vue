@@ -21,15 +21,18 @@ const connectState = reactive({
   connect2Peer: false
 })
 
-const handleEvent = (e) => {
+const handleEvent = (e: MouseEvent | ToggleEvent) => {
   if (!isOperatorRef.value) {
     return
   }
   if (peerHelper.connectState.connect2Peer) {
     const msg = getMsg(e)
+    console.log(msg)
     peerHelper.sendMsg(msg)
   }
 }
+
+const handleMove =_.throttle(handleEvent,20)
 
 const handleUp = (e) => {
   if (!isOperatorRef.value) {
@@ -178,7 +181,7 @@ const disconnect = () => {
     </div>
     <div class="w-full h-full flex justify-center">
       <video
-          class="h-full"
+          class="w-[1680px] h-[1050px]"
           :class="isOperatorRef ? 'cursor-none' : ''"
           v-show="connectState.connect2Peer"
           ref="remoteViewRef"
@@ -187,7 +190,7 @@ const disconnect = () => {
           muted
           @click="handleEvent"
           @mousedown="handleEvent"
-          @mousemove="handleEvent"
+          @mousemove="handleMove"
           @mouseup="handleUp"
           @mouseleave="handleUp"
           @mouseout="handleUp"

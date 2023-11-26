@@ -3,16 +3,17 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getDifferentWin } from './helper'
+import Config from '../config/config'
 
 getDifferentWin()
 
 function createWindow(): void {
   // Create the browser window.
   let mainWindow
-  if (import.meta.env.MAIN_VITE_ROLE === 'SERVER') {
+  if (Config.ROLE === Config.SERVER) {
     mainWindow = new BrowserWindow({
-      width: 600,
-      height: 150,
+      width: 700,
+      height: 100,
       show: false,
       autoHideMenuBar: true,
       ...(process.platform === 'linux' ? { icon } : {}),
@@ -37,7 +38,9 @@ function createWindow(): void {
   }
 
   mainWindow.on('ready-to-show', () => {
-    mainWindow.show()
+    if (Config.IS_SERVER_WINDOW_SHOW) {
+      mainWindow.show()
+    }
   })
 
   mainWindow.webContents.setWindowOpenHandler((details) => {
