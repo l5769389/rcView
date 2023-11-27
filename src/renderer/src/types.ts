@@ -1,10 +1,15 @@
 interface PeerMsgType {
   type: 'operate'
   data: {
-    x: number
-    y: number
-    mouseType: string,
-    key?: string
+    x?: number
+    y?: number
+    mouseType: string
+    keys?: {
+      key?: string
+      ctrlKey?: boolean
+      shiftKey?: boolean
+      altKey?: boolean
+    }
   }
 }
 

@@ -6,7 +6,15 @@ import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 import { ArrowMove20Filled } from '@vicons/fluent'
 import { Eye } from '@vicons/fa'
 
-type getMsgType = (e: MouseEvent | TouchEvent | WheelEvent, type?: string) => PeerMsgType
+enum OpType {
+  mousedown = 'mousedown',
+  mousemove = 'mousemove',
+  mouseup = 'mouseup',
+  contextmenu = 'contextmenu',
+  wheel = 'wheel',
+  dragMouse = 'dragMouse',
+  keydown = 'keydown'
+}
 
 const remoteViewRef = ref()
 const isOperatorRef = ref(true)
@@ -20,60 +28,147 @@ const connectState = reactive({
   connect2Peer: false
 })
 
-const handleEvent = (e: MouseEvent | TouchEvent | WheelEvent) => {
-  console.log(e.type)
-  if (!isOperatorRef.value) {
-    return
-  }
-  if (peerHelper.connectState.connect2Peer) {
-    const msg = getMsg(e)
-    peerHelper.sendMsg(msg)
-  }
-}
-
-const handleMove = _.throttle(handleEvent, 20)
-
-const handleUp = (e) => {
-  if (!isOperatorRef.value) {
-    return
-  }
-  if (peerHelper.connectState.connect2Peer) {
-    const msg = getMsg(e, 'mouseup')
-    peerHelper.sendMsg(msg)
-  }
-}
 let mousedownFlag = false
-const getMsg: getMsgType = (e: WheelEvent | MouseEvent | TouchEvent, type = e.type) => {
-  let clientX, clientY
-  if (e instanceof WheelEvent) {
-    clientX = e.deltaX
-    clientY = e.deltaY
-  } else if (e instanceof MouseEvent) {
-    clientX = e.clientX
-    clientY = e.clientY
-  } else if (e instanceof TouchEvent) {
-    clientX = e.touches[0].clientX
-    clientY = e.touches[0].clientY
-  }
+const handleTouchstart = (e: TouchEvent) => {
+  console.log('touch start')
+  const clientX = e.touches[0]?.clientX
+  const clientY = e.touches[0]?.clientY
   const { x, y } = getUniformedPosition(clientX, clientY)
-  let ansType = type
-  if (type === 'mousedown') {
-    mousedownFlag = true
-  } else if (type === 'mouseup') {
-    mousedownFlag = false
-  } else if (type === 'mousemove' && mousedownFlag) {
-    // 鼠标按下左键且拖动。
-    ansType = 'dragMouse'
-  }
   const msg: PeerMsgType = {
     type: 'operate',
     data: {
-      mouseType: ansType,
+      mouseType: OpType.mousedown,
       x,
       y
     }
   }
-  return msg
+  sendMsg(msg)
+}
+
+const handleMousedown = (e: MouseEvent) => {
+  const clientX = e.clientX
+  const clientY = e.clientY
+  mousedownFlag = true
+  const { x, y } = getUniformedPosition(clientX, clientY)
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.mousedown,
+      x,
+      y
+    }
+  }
+  sendMsg(msg)
+}
+const handleTouchMove = _.throttle((e: TouchEvent) => {
+  console.log('touch move')
+  const clientX = e.touches[0]?.clientX
+  const clientY = e.touches[0]?.clientY
+  const { x, y } = getUniformedPosition(clientX, clientY)
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.dragMouse,
+      x,
+      y
+    }
+  }
+  sendMsg(msg)
+}, 20)
+const handleMouseMove = _.throttle((e: MouseEvent) => {
+  console.log('mouse move')
+  const clientX = e.clientX
+  const clientY = e.clientY
+  const { x, y } = getUniformedPosition(clientX, clientY)
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: mousedownFlag ? OpType.dragMouse : OpType.mousemove,
+      x,
+      y
+    }
+  }
+  sendMsg(msg)
+}, 20)
+const handleTouchend = () => {
+  mousedownFlag = false
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.mouseup
+    }
+  }
+  sendMsg(msg)
+}
+const handleTouchCancel = () => {
+  mousedownFlag = false
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.mouseup
+    }
+  }
+  sendMsg(msg)
+}
+const handleMouseup = () => {
+  mousedownFlag = false
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.mouseup
+    }
+  }
+  sendMsg(msg)
+}
+const handleMouseleave = () => {
+  mousedownFlag = false
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.mouseup
+    }
+  }
+  sendMsg(msg)
+}
+const handleMouseout = () => {
+  mousedownFlag = false
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.mouseup
+    }
+  }
+  sendMsg(msg)
+}
+const handleWheel = (e: WheelEvent) => {
+  const clientX = e.deltaX
+  const clientY = e.deltaY
+  const { x, y } = getUniformedPosition(clientX, clientY)
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.wheel,
+      x,
+      y
+    }
+  }
+  sendMsg(msg)
+}
+const handleContextmenu = () => {
+  const msg: PeerMsgType = {
+    type: 'operate',
+    data: {
+      mouseType: OpType.contextmenu
+    }
+  }
+  sendMsg(msg)
+}
+
+const sendMsg = (msg) => {
+  if (!isOperatorRef.value || !peerHelper.connectState.connect2Peer) {
+    return
+  }
+  peerHelper.sendMsg(msg)
 }
 
 const getUniformedPosition = (clientX: number, clientY: number) => {
@@ -110,21 +205,24 @@ watch(
 )
 
 const listenKeyInput = () => {
-  document.addEventListener('keydown', handleKeyEvent)
+  document.addEventListener(OpType.keydown, handleKeyEvent)
 }
 const removeKeyInputListen = () => {
-  document.removeEventListener('keydown', handleKeyEvent)
+  document.removeEventListener(OpType.keydown, handleKeyEvent)
 }
 
-const getKeydownMsg = (e) => {
-  const { key } = e
+const getKeydownMsg = (e: KeyboardEvent) => {
+  const { ctrlKey, shiftKey, altKey, key } = e
   const msg: PeerMsgType = {
     type: 'operate',
     data: {
-      mouseType: 'keydown',
-      x: -1,
-      y: -1,
-      key: key
+      mouseType: OpType.keydown,
+      keys: {
+        key,
+        ctrlKey,
+        shiftKey,
+        altKey
+      }
     }
   }
   return msg
@@ -146,12 +244,12 @@ const disconnect = () => {
       <n-grid :cols="3">
         <n-gi>
           <span class="mr-[10px]">信令服务器连接状态：</span>
-          <n-switch size="large" disabled v-model:value="connectState.connect2Server" />
+          <n-switch v-model:value="connectState.connect2Server" size="large" disabled />
         </n-gi>
 
         <n-gi>
           <span class="mr-[10px]">远程桌面连接状态:</span>
-          <n-switch size="large" disabled v-model:value="connectState.connect2Peer" />
+          <n-switch v-model:value="connectState.connect2Peer" size="large" disabled />
         </n-gi>
 
         <n-gi>
@@ -189,20 +287,24 @@ const disconnect = () => {
     </div>
     <div class="w-full h-full flex justify-center">
       <video
-        class="w-max-[100%] h-max-[100%]"
-        :class="isOperatorRef ? 'cursor-none' : ''"
         v-show="connectState.connect2Peer"
         ref="remoteViewRef"
+        class="w-max-[100%] h-max-[100%]"
+        :class="isOperatorRef ? 'cursor-none' : ''"
         autoplay
         playsinline
         muted
-        @mousedown="handleEvent"
-        @mousemove="handleMove"
-        @mouseup="handleUp"
-        @mouseleave="handleUp"
-        @mouseout="handleUp"
-        @wheel="console.log($event)"
-        @contextmenu="handleEvent"
+        @touchstart="handleTouchstart"
+        @mousedown="handleMousedown"
+        @touchmove="handleTouchMove"
+        @mousemove="handleMouseMove"
+        @touchend="handleTouchend"
+        @touchcancel="handleTouchCancel"
+        @mouseup="handleMouseup"
+        @mouseleave="handleMouseleave"
+        @mouseout="handleMouseout"
+        @wheel="handleWheel"
+        @contextmenu="handleContextmenu"
       ></video>
     </div>
   </div>
