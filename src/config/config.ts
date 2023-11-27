@@ -1,8 +1,7 @@
 export default class Config {
-  static readonly SERVER: 'SERVER' = 'SERVER'
-  static readonly CLIENT: 'CLIENT' = 'CLIENT'
+  static readonly SERVER = 'SERVER' as const
+  static readonly CLIENT = 'CLIENT' as const
   static readonly ROLE: 'SERVER' | 'CLIENT' = this.CLIENT
-
   static readonly SERVER_ID = '1'
 
   static readonly SIGNAL_SERVER_IP = '192.168.3.243'

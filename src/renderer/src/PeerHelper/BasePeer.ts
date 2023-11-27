@@ -1,3 +1,4 @@
+import { optimizer } from '@electron-toolkit/utils';
 import { stateChangeCbType } from './PeerTypes'
 import Config from '@config/config'
 
@@ -37,10 +38,10 @@ export class BasePeer {
           minHeight: height,
           maxHeight: height
         },
-          optional: [
-              {minFrameRate: 15},
-              {maxFrameRate: 30}
-          ]
+        optional: [
+          {minFrameRate: 15},
+          {maxFrameRate: 30},
+        ]
       }
     })
     return stream
