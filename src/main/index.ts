@@ -3,7 +3,7 @@ import { join } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getDifferentWin } from './helper'
-import Config from '../config/config'
+import Config from '@config/config'
 
 getDifferentWin()
 

@@ -1,6 +1,6 @@
 import { ipcMain, desktopCapturer } from 'electron'
 import robot from 'robotjs'
-import Config from '../config/config'
+import Config from '@config/config'
 
 export const getDifferentWin = async () => {
   if (Config.ROLE === Config.SERVER) {

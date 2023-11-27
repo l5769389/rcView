@@ -1,6 +1,6 @@
 import { optimizer } from '@electron-toolkit/utils';
 import { stateChangeCbType } from './PeerTypes'
-import Config from '../../../config/config'
+import Config from '@config/config'
 
 export class BasePeer {
   MAINID = Config.SERVER_ID
