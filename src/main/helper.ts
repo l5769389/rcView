@@ -12,20 +12,21 @@ export const getDifferentWin = async () => {
       }
     })
     const robotOp = (msg) => {
-      const { mouseType: type, x: clientX, y: clientY, key } = msg
+      const {
+        mouseType: type,
+        x: clientX,
+        y: clientY,
+        keys: { key, ctrlKey, shiftKey, altKey }
+      } = msg
       if (type === 'mousemove') {
         robot.moveMouse(clientX, clientY)
       } else if (type === 'mousedown') {
-        console.log('down')
         robot.mouseToggle('down')
       } else if (type === 'mouseup') {
-        console.log('up')
         robot.mouseToggle('up')
       } else if (type === 'dragMouse') {
-        console.log('drag')
         robot.dragMouse(clientX, clientY)
       } else if (type === 'keydown') {
-        console.log(`tap: ${key}`)
         let tapkey = ''
         if (key.length === 1) {
           tapkey = key
@@ -33,14 +34,22 @@ export const getDifferentWin = async () => {
           tapkey = key.toLocaleLowerCase()
         }
         try {
-          robot.keyTap(tapkey)
+          if (shiftKey) {
+            robot.keyToggle('shift', tapkey)
+          } else if (ctrlKey) {
+            robot.keyToggle('control', tapkey)
+          } else if (altKey) {
+            robot.keyToggle('alt', tapkey)
+          } else {
+            robot.keyTap(tapkey)
+          }
         } catch (e) {
-          console.log(`${tapkey} is error`)
           console.log(e)
         }
       } else if (type === 'contextmenu') {
-        console.log('right click')
         robot.mouseClick('right')
+      } else if (type === 'wheel') {
+        robot.scrollMouse(clientX, clientY)
       }
     }
   }
