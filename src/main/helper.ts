@@ -11,13 +11,9 @@ export const getDifferentWin = async () => {
         console.log(e)
       }
     })
+      
     const robotOp = (msg) => {
-      const {
-        mouseType: type,
-        x: clientX,
-        y: clientY,
-        keys: { key, ctrlKey, shiftKey, altKey }
-      } = msg
+      const { mouseType: type, x: clientX, y: clientY, keys } = msg
       if (type === 'mousemove') {
         robot.moveMouse(clientX, clientY)
       } else if (type === 'mousedown') {
@@ -27,7 +23,9 @@ export const getDifferentWin = async () => {
       } else if (type === 'dragMouse') {
         robot.dragMouse(clientX, clientY)
       } else if (type === 'keydown') {
+        const { key, ctrlKey, shiftKey, altKey } = keys
         let tapkey = ''
+        tapkey = key
         if (key.length === 1) {
           tapkey = key
         } else {
@@ -35,11 +33,11 @@ export const getDifferentWin = async () => {
         }
         try {
           if (shiftKey) {
-            robot.keyToggle('shift', tapkey)
+            robot.keyTap(tapkey, ['shift'])
           } else if (ctrlKey) {
-            robot.keyToggle('control', tapkey)
+            robot.keyTap(tapkey, ['control'])
           } else if (altKey) {
-            robot.keyToggle('alt', tapkey)
+            robot.keyTap(tapkey, ['alt'])
           } else {
             robot.keyTap(tapkey)
           }
