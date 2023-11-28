@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { ref} from 'vue'
-import { ServerPeer } from '../PeerHelper/ServerPeer'
+import { ref } from 'vue'
+import { ServerPeer } from '@renderer/PeerHelper/ServerPeer'
 
 const connectState = ref({
   connect2Server: false,
@@ -15,7 +15,7 @@ const server = new ServerPeer((state) => {
   console.log('cb', state)
   Object.assign(connectState.value, state)
   countRef.value = connectState.value.callMap.size
-  clients.value = Array.from(connectState.value.callMap.keys())
+  Array.from(connectState.value.callMap.keys())
   console.log(clients.value)
 })
 

@@ -7,5 +7,21 @@
     {
       "path": "./tsconfig.web.json"
     }
-  ]
+  ],
+  "compilerOptions": {
+    "composite": true,
+    "types": ["electron-vite/node"],
+    "baseUrl": ".",
+    "paths": {
+      "@config/*": [
+        "src/config/*"
+      ],
+      "@renderer/*": [
+        "src/renderer/src/*"
+      ],
+      "@/*": [
+        "src/*"
+      ]
+    }
+  }
 }

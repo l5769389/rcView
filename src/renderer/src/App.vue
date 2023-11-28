@@ -1,12 +1,12 @@
 <script setup lang="ts">
-import ClientView from './components/ClientView.vue'
-import ServerView from './components/ServerView.vue'
-import Config from "@config/config";
+import ClientView from '@renderer/components/ClientView.vue'
+import ServerView from '@renderer/components/ServerView.vue'
+import Config from '@config/config'
 
 const Role = Config.ROLE
 </script>
 
 <template>
-    <ServerView v-if="Role === 'SERVER'" />
-    <ClientView v-else />
+  <ServerView v-if="Role === 'SERVER'" />
+  <ClientView v-else />
 </template>

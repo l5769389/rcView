@@ -1,17 +1,13 @@
 /** @type {import('tailwindcss').Config} */
 module.exports = {
-  content: [
-    "./src/renderer/index.html",
-    "./src/renderer/**/*.{js,ts,jsx,tsx,vue}",
-  ],
+  content: ['./src/renderer/index.html', './src/renderer/**/*.{js,ts,jsx,tsx,vue}'],
   variants: {
     extend: {
-      important: true,
-    },
+      important: true
+    }
   },
   theme: {
-    extend: {},
+    extend: {}
   },
-  plugins: [],
+  plugins: []
 }
-

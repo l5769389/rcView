@@ -1,6 +1,6 @@
 import { MediaConnection, Peer } from 'peerjs'
 import { BasePeer } from './BasePeer'
-import type { PeerMsgType } from '../types.ts'
+import type { PeerMsgType } from '../types'
 import { stateChangeCbType } from './PeerTypes'
 
 export class ServerPeer extends BasePeer {
@@ -44,13 +44,13 @@ export class ServerPeer extends BasePeer {
   }
 
   addListen() {
-    this.peer!.on('open', () => {
+    this.peer?.on('open', () => {
       this.updateConnectState({
         connect2Server: true
       })
     })
 
-    this.peer!.on('connection', (conn) => {
+    this.peer?.on('connection', (conn) => {
       conn.on('data', (data) => {
         const {
           type,
@@ -69,13 +69,13 @@ export class ServerPeer extends BasePeer {
     })
 
     // 与信令服务器断开
-    this.peer!.on('disconnected', () => {
+    this.peer?.on('disconnected', () => {
       this.updateConnectState({
         connect2Server: false
       })
     })
 
-    this.peer!.on('call', async (call) => {
+    this.peer?.on('call', async (call) => {
       const callKey = Date.now()
       call.on('close', () => {
         this.disconnect2PeerCall(callKey)
@@ -96,6 +96,6 @@ export class ServerPeer extends BasePeer {
   }
 
   robotOp(msg) {
-    window.electron.ipcRenderer.send('robotOp', msg)
+    ;(window as any).electron.ipcRenderer.send('robotOp', msg)
   }
 }

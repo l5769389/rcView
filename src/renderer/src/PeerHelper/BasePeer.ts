@@ -1,15 +1,15 @@
-import { optimizer } from '@electron-toolkit/utils';
-import { stateChangeCbType } from './PeerTypes'
+import { ConnectStateType, stateChangeCbType } from './PeerTypes'
 import Config from '@config/config'
+import { MediaConnection } from 'peerjs'
 
 export class BasePeer {
   MAINID = Config.SERVER_ID
   HOST = Config.SIGNAL_SERVER_IP
   PORT = Config.SIGNAL_SERVER_PORT
-  connectState = {
+  connectState: ConnectStateType = {
     connect2Server: false,
     connect2Peer: false,
-    callMap: new Map<number, any>()
+    callMap: new Map<number, MediaConnection>()
   }
   connectStateChangeCb?: stateChangeCbType
 
@@ -17,7 +17,7 @@ export class BasePeer {
     this.connectStateChangeCb = connectStateChangeCb
   }
 
-  updateConnectState(newState: Object) {
+  updateConnectState(newState: ConnectStateType) {
     Object.assign(this.connectState, newState)
     this.connectStateChangeCb?.(this.connectState)
   }
@@ -27,7 +27,7 @@ export class BasePeer {
     const width = screenWidth * Config.VIEW_RESOLUTION
     const height = screenHeight * Config.VIEW_RESOLUTION
     const sourceId = await window['electron'].ipcRenderer.invoke('desktop')
-    const stream = await navigator.mediaDevices.getUserMedia({
+    return await (navigator.mediaDevices as any).getUserMedia({
       audio: false,
       video: {
         mandatory: {
@@ -38,12 +38,8 @@ export class BasePeer {
           minHeight: height,
           maxHeight: height
         },
-        optional: [
-          {minFrameRate: 15},
-          {maxFrameRate: 30},
-        ]
+        optional: [{ minFrameRate: 15 }, { maxFrameRate: 30 }]
       }
     })
-    return stream
   }
 }

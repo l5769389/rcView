@@ -1,6 +1,6 @@
+import Config from '@config/config'
 import { ipcMain, desktopCapturer } from 'electron'
 import robot from 'robotjs'
-import Config from '@config/config'
 
 export const getDifferentWin = async () => {
   if (Config.ROLE === Config.SERVER) {
@@ -11,7 +11,7 @@ export const getDifferentWin = async () => {
         console.log(e)
       }
     })
-      
+
     const robotOp = (msg) => {
       const { mouseType: type, x: clientX, y: clientY, keys } = msg
       if (type === 'mousemove') {
