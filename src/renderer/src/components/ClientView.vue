@@ -4,7 +4,7 @@ import _ from 'lodash'
 import { PeerMsgType } from '@renderer/types'
 import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 import { ArrowMove20Filled } from '@vicons/fluent'
-import { Eye } from '@vicons/fa'
+import { Eye, AngleDoubleLeft, AngleDoubleRight } from '@vicons/fa'
 
 enum OpType {
   mousedown = 'mousedown',
@@ -212,13 +212,20 @@ const removeKeyInputListen = () => {
 }
 
 const getKeydownMsg = (e: KeyboardEvent) => {
-  const { ctrlKey, shiftKey, altKey, key } = e
+  const { ctrlKey, shiftKey, altKey, key, code } = e
+  let sendKey = key
+  if (shiftKey) {
+    // todo 键盘的映射。
+    if (code.includes('Digit')) {
+      sendKey = code[code.length - 1]
+    }
+  }
   const msg: PeerMsgType = {
     type: 'operate',
     data: {
       mouseType: OpType.keydown,
       keys: {
-        key,
+        key: sendKey,
         ctrlKey,
         shiftKey,
         altKey
@@ -236,23 +243,26 @@ const handleKeyEvent = (e) => {
 const disconnect = () => {
   peerHelper.disconnect()
 }
+
+const isFoldRef = ref(false)
 </script>
 
 <template>
   <div class="p-[10px] pt-[20px] text-[25px] bg-black w-full h-full relative overflow-hidden">
-    <div class="h-[50px] absolute top-0 left-0 bg-amber-600 w-full z-10">
-      <n-grid :cols="3">
-        <n-gi>
+    <div class="h-[50px] absolute top-0 left-0 z-10">
+      <div
+        class="w-full h-full bg-amber-300 flex justify-between space-x-[20px] pl-[20px] pr-[20px]"
+        v-if="!isFoldRef"
+      >
+        <div>
           <span class="mr-[10px]">信令服务器连接状态：</span>
           <n-switch v-model:value="connectState.connect2Server" size="large" disabled />
-        </n-gi>
-
-        <n-gi>
+        </div>
+        <div>
           <span class="mr-[10px]">远程桌面连接状态:</span>
           <n-switch v-model:value="connectState.connect2Peer" size="large" disabled />
-        </n-gi>
-
-        <n-gi>
+        </div>
+        <div>
           <n-button
             size="large"
             type="primary"
@@ -277,13 +287,26 @@ const disconnect = () => {
           </n-button>
           <n-button
             size="large"
-            type="warning"
+            type="error"
             @click="disconnect"
             :disabled="!connectState.connect2Peer"
             >断开连接
           </n-button>
-        </n-gi>
-      </n-grid>
+        </div>
+        <n-button text @click="isFoldRef = !isFoldRef">
+          <n-icon size="40" class="text-gray-500">
+            <angle-double-left />
+          </n-icon>
+        </n-button>
+      </div>
+
+      <div v-else>
+        <n-button text @click="isFoldRef = !isFoldRef">
+          <n-icon size="40" class="text-gray-500">
+            <angle-double-right />
+          </n-icon>
+        </n-button>
+      </div>
     </div>
     <div class="w-full h-full flex justify-center">
       <video
