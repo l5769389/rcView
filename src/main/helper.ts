@@ -1,18 +1,19 @@
 import Config from '@config/config'
 import { ipcMain, desktopCapturer } from 'electron'
 import robot from 'robotjs'
+import { spawn } from 'child_process'
+import { resolve } from 'path'
 
 export const getDifferentWin = async () => {
   if (Config.ROLE === Config.SERVER) {
-    ipcMain.addListener('robotOp', (e: any, msg) => {
+    ipcMain.addListener('robotOp', (_e, msg) => {
       try {
         robotOp(msg)
       } catch (e) {
         console.log(e)
       }
     })
-
-    const robotOp = (msg) => {
+    const robotOp = (msg: any) => {
       const { mouseType: type, x: clientX, y: clientY, keys } = msg
       if (type === 'mousemove') {
         robot.moveMouse(clientX, clientY)
@@ -50,6 +51,19 @@ export const getDifferentWin = async () => {
         robot.scrollMouse(clientX, clientY)
       }
     }
+    const js_path = resolve(__dirname, './peerServer.js')
+    const childProcess = spawn('node', [js_path])
+    childProcess.stdout.on('data', (data) => {
+      console.log(`stdout: ${data}`)
+    })
+
+    childProcess.stderr.on('data', (data) => {
+      console.error(`stderr: ${data}`)
+    })
+
+    childProcess.on('close', (code) => {
+      console.log(`child process exited with code ${code}`)
+    })
   }
 
   ipcMain.handle('desktop', async () => {

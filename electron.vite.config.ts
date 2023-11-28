@@ -9,6 +9,14 @@ export default defineConfig({
       alias: {
         '@config': resolve('src/config/')
       }
+    },
+    build: {
+      rollupOptions: {
+        input: {
+          index: resolve('src/main/index.ts'),
+          peerServer: resolve('src/main/peerServer.ts')
+        }
+      }
     }
   },
   preload: {
