@@ -55,9 +55,6 @@ export class ServerPeer extends BasePeer {
           type,
           data: { x = -1, y = -1, mouseType, keys }
         } = data as PeerMsgType
-        if (x === -1 || y === -1) {
-          return
-        }
         if (type === 'operate') {
           const { x: mapX, y: mapY } = this.map2ScreenPosition(x, y)
           this.robotOp({

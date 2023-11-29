@@ -65,7 +65,7 @@ const handleTouchMove = _.throttle((e: TouchEvent) => {
     }
   }
   sendMsg(msg)
-}, 20)
+}, 50)
 const handleMouseMove = _.throttle((e: MouseEvent) => {
   const clientX = e.clientX
   const clientY = e.clientY
