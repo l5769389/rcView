@@ -11,6 +11,11 @@ export class BasePeer {
     connect2Peer: false,
     callMap: new Map<number, MediaConnection>()
   }
+  screenSize = {
+    width: 1,
+    height: 1,
+    scaleFactor: 1
+  }
   connectStateChangeCb?: stateChangeCbType
 
   constructor(connectStateChangeCb?: stateChangeCbType) {
@@ -23,10 +28,16 @@ export class BasePeer {
   }
 
   getLocalStream = async () => {
-    const { width: screenWidth, height: screenHeight } = screen
-    const width = screenWidth * Config.VIEW_RESOLUTION
-    const height = screenHeight * Config.VIEW_RESOLUTION
-    const sourceId = await window['electron'].ipcRenderer.invoke('desktop')
+    const { sourceId, width, height, scaleFactor } =
+      await window['electron'].ipcRenderer.invoke('desktop')
+    this.screenSize = {
+      width,
+      height,
+      scaleFactor
+    }
+    if (sourceId === -1) {
+      throw new Error('get local stream sourceId error')
+    }
     return await (navigator.mediaDevices as any).getUserMedia({
       audio: false,
       video: {

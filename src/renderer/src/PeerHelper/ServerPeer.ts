@@ -35,11 +35,10 @@ export class ServerPeer extends BasePeer {
   }
 
   map2ScreenPosition(x: number, y: number) {
-    const screenWidth = window.screen.width
-    const screenHeight = window.screen.height
+    const { width, height, scaleFactor } = this.screenSize
     return {
-      x: Math.round(screenWidth * x),
-      y: Math.round(screenHeight * y)
+      x: Math.round(width * x * scaleFactor),
+      y: Math.round(height * y * scaleFactor)
     }
   }
 
@@ -56,6 +55,9 @@ export class ServerPeer extends BasePeer {
           type,
           data: { x = -1, y = -1, mouseType, keys }
         } = data as PeerMsgType
+        if (x === -1 || y === -1) {
+          return
+        }
         if (type === 'operate') {
           const { x: mapX, y: mapY } = this.map2ScreenPosition(x, y)
           this.robotOp({

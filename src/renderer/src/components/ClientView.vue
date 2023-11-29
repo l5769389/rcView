@@ -5,16 +5,7 @@ import { PeerMsgType } from '@renderer/types'
 import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 import { ArrowMove20Filled } from '@vicons/fluent'
 import { Eye, AngleDoubleLeft, AngleDoubleRight } from '@vicons/fa'
-
-enum OpType {
-  mousedown = 'mousedown',
-  mousemove = 'mousemove',
-  mouseup = 'mouseup',
-  contextmenu = 'contextmenu',
-  wheel = 'wheel',
-  dragMouse = 'dragMouse',
-  keydown = 'keydown'
-}
+import { OpType } from '@config/types'
 
 const remoteViewRef = ref()
 const isOperatorRef = ref(true)
@@ -46,6 +37,7 @@ const handleTouchstart = (e: TouchEvent) => {
 }
 
 const handleMousedown = (e: MouseEvent) => {
+  console.log('mousedown')
   const clientX = e.clientX
   const clientY = e.clientY
   mousedownFlag = true
@@ -61,7 +53,6 @@ const handleMousedown = (e: MouseEvent) => {
   sendMsg(msg)
 }
 const handleTouchMove = _.throttle((e: TouchEvent) => {
-  console.log('touch move')
   const clientX = e.touches[0]?.clientX
   const clientY = e.touches[0]?.clientY
   const { x, y } = getUniformedPosition(clientX, clientY)
@@ -76,7 +67,6 @@ const handleTouchMove = _.throttle((e: TouchEvent) => {
   sendMsg(msg)
 }, 20)
 const handleMouseMove = _.throttle((e: MouseEvent) => {
-  console.log('mouse move')
   const clientX = e.clientX
   const clientY = e.clientY
   const { x, y } = getUniformedPosition(clientX, clientY)
@@ -111,6 +101,7 @@ const handleTouchCancel = () => {
   sendMsg(msg)
 }
 const handleMouseup = () => {
+  console.log('mouse up')
   mousedownFlag = false
   const msg: PeerMsgType = {
     type: 'operate',
@@ -171,15 +162,30 @@ const sendMsg = (msg) => {
   peerHelper.sendMsg(msg)
 }
 
+const videoSizeRef = ref({
+  width: 1,
+  height: 1
+})
+
+const videoActualSizeRef = ref({
+  width: 1,
+  height: 1
+})
+
 const getUniformedPosition = (clientX: number, clientY: number) => {
   const { width, height, left, top } = remoteViewRef.value.getBoundingClientRect()
+  videoSizeRef.value = {
+    width: width,
+    height: height
+  }
   const x = clientX - left
   const y = clientY - top
   return {
-    x: x / width,
-    y: y / height
+    x: x / videoActualSizeRef.value.width,
+    y: y / videoActualSizeRef.value.height
   }
 }
+
 const connect = () => {
   peerHelper.connect2MainPeer((stream) => {
     remoteViewRef.value.srcObject = stream
@@ -245,14 +251,21 @@ const disconnect = () => {
 }
 
 const isFoldRef = ref(false)
+
+const handleCanplay = () => {
+  videoActualSizeRef.value = {
+    width: remoteViewRef.value.videoWidth,
+    height: remoteViewRef.value.videoHeight
+  }
+}
 </script>
 
 <template>
   <div class="p-[10px] pt-[20px] text-[25px] bg-black w-full h-full relative overflow-hidden">
     <div class="h-[50px] absolute top-0 left-0 z-10">
       <div
-        class="w-full h-full bg-amber-300 flex justify-between space-x-[20px] pl-[20px] pr-[20px]"
         v-if="!isFoldRef"
+        class="w-full h-full bg-amber-300 flex justify-between space-x-[20px] pl-[20px] pr-[20px]"
       >
         <div>
           <span class="mr-[10px]">信令服务器连接状态：</span>
@@ -264,10 +277,10 @@ const isFoldRef = ref(false)
         </div>
         <div>
           <n-button
+            :disabled="connectState.connect2Peer"
             size="large"
             type="primary"
             @click="connect"
-            :disabled="connectState.connect2Peer"
           >
             <span class="mr-[5px]">操作主控制盒</span>
             <n-icon size="20">
@@ -275,10 +288,10 @@ const isFoldRef = ref(false)
             </n-icon>
           </n-button>
           <n-button
+            :disabled="connectState.connect2Peer"
             size="large"
             type="primary"
             @click="viewConnect"
-            :disabled="connectState.connect2Peer"
           >
             <span class="mr-[5px]">镜像主控制盒</span>
             <n-icon size="20">
@@ -286,12 +299,20 @@ const isFoldRef = ref(false)
             </n-icon>
           </n-button>
           <n-button
+            :disabled="!connectState.connect2Peer"
             size="large"
             type="error"
             @click="disconnect"
-            :disabled="!connectState.connect2Peer"
             >断开连接
           </n-button>
+        </div>
+        <div>
+          <span class="text-[15px]"
+            >video为:{{ videoSizeRef.width }} * {{ videoSizeRef.height }}</span
+          >
+          <span class="text-[15px]">
+            video实际为：{{ videoActualSizeRef.width }} * {{ videoActualSizeRef.height }}
+          </span>
         </div>
         <n-button text @click="isFoldRef = !isFoldRef">
           <n-icon size="40" class="text-gray-500">
@@ -310,13 +331,14 @@ const isFoldRef = ref(false)
     </div>
     <div class="w-full h-full flex justify-center">
       <video
-        v-show="connectState.connect2Peer"
         ref="remoteViewRef"
+        v-show="connectState.connect2Peer"
         class="w-max-[100%] h-max-[100%]"
         :class="isOperatorRef ? 'cursor-none' : ''"
         autoplay
         playsinline
         muted
+        @canplay="handleCanplay"
         @touchstart="handleTouchstart"
         @mousedown="handleMousedown"
         @touchmove="handleTouchMove"

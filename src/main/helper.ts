@@ -1,8 +1,16 @@
 import Config from '@config/config'
-import { ipcMain, desktopCapturer } from 'electron'
+import { desktopCapturer, ipcMain, screen } from 'electron'
 import robot from 'robotjs'
 import { spawn } from 'child_process'
 import { resolve } from 'path'
+import { OpType } from '@config/types'
+
+interface RobotMsgType {
+  mouseType: OpType
+  x: number
+  y: number
+  keys: any
+}
 
 export const getDifferentWin = async () => {
   if (Config.ROLE === Config.SERVER) {
@@ -14,16 +22,16 @@ export const getDifferentWin = async () => {
       }
     })
     const robotOp = (msg: any) => {
-      const { mouseType: type, x: clientX, y: clientY, keys } = msg
-      if (type === 'mousemove') {
+      const { mouseType: type, x: clientX, y: clientY, keys } = msg as RobotMsgType
+      if (type === OpType.mousemove) {
         robot.moveMouse(clientX, clientY)
-      } else if (type === 'mousedown') {
+      } else if (type === OpType.mousedown) {
         robot.mouseToggle('down')
-      } else if (type === 'mouseup') {
+      } else if (type === OpType.mouseup) {
         robot.mouseToggle('up')
-      } else if (type === 'dragMouse') {
+      } else if (type === OpType.dragMouse) {
         robot.dragMouse(clientX, clientY)
-      } else if (type === 'keydown') {
+      } else if (type === OpType.keydown) {
         const { key, ctrlKey, shiftKey, altKey } = keys
         let tapkey = ''
         tapkey = key
@@ -45,9 +53,9 @@ export const getDifferentWin = async () => {
         } catch (e) {
           console.log(e)
         }
-      } else if (type === 'contextmenu') {
+      } else if (type === OpType.contextmenu) {
         robot.mouseClick('right')
-      } else if (type === 'wheel') {
+      } else if (type === OpType.wheel) {
         robot.scrollMouse(clientX, clientY)
       }
     }
@@ -76,11 +84,30 @@ export const getDifferentWin = async () => {
         }
       })
       .then(async (sources) => {
+        const size = getScreenSize()
         if (sources.length >= 1) {
-          return sources[0].id
+          return {
+            sourceId: sources[0].id,
+            ...size
+          }
         } else {
-          return -1
+          return {
+            sourceId: -1,
+            ...size
+          }
         }
       })
   })
+}
+
+const getScreenSize = () => {
+  const display = screen.getPrimaryDisplay()
+  const { width: screenWidth, height: screenHeight } = display.size
+  const width = screenWidth
+  const height = screenHeight
+  return {
+    width,
+    height,
+    scaleFactor: display.scaleFactor
+  }
 }
