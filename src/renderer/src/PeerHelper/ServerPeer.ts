@@ -53,7 +53,7 @@ export class ServerPeer extends BasePeer {
       conn.on('data', (data) => {
         const {
           type,
-          data: { x = -1, y = -1, mouseType, keys }
+          data: { x = -1, y = -1, mouseType, keys,deltaX,deltaY}
         } = data as PeerMsgType
         if (type === 'operate') {
           const { x: mapX, y: mapY } = this.map2ScreenPosition(x, y)
@@ -61,7 +61,9 @@ export class ServerPeer extends BasePeer {
             mouseType,
             x: mapX,
             y: mapY,
-            keys
+            keys,
+            deltaX,
+            deltaY
           })
         }
       })

@@ -134,15 +134,15 @@ const handleMouseout = () => {
 const handleWheel = (e: WheelEvent) => {
   const clientX = e.deltaX
   const clientY = e.deltaY
-  const { x, y } = getUniformedPosition(clientX, clientY)
   const msg: PeerMsgType = {
     type: 'operate',
     data: {
       mouseType: OpType.wheel,
-      x,
-      y
+      deltaX: clientX,
+      deltaY: clientY
     }
   }
+  console.log(JSON.stringify(msg))
   sendMsg(msg)
 }
 const handleContextmenu = () => {
@@ -332,7 +332,6 @@ const handleCanplay = () => {
     <div class="w-full h-full flex justify-center">
       <video
         ref="remoteViewRef"
-        v-show="connectState.connect2Peer"
         class="w-max-[100%] h-max-[100%]"
         :class="isOperatorRef ? 'cursor-none' : ''"
         autoplay

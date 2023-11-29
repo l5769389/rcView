@@ -10,6 +10,8 @@ interface RobotMsgType {
   x: number
   y: number
   keys: any
+  deltaX?: number
+  deltaY?: number
 }
 
 export const getDifferentWin = async () => {
@@ -56,7 +58,10 @@ export const getDifferentWin = async () => {
       } else if (type === OpType.contextmenu) {
         robot.mouseClick('right')
       } else if (type === OpType.wheel) {
-        robot.scrollMouse(clientX, clientY)
+        const { deltaX, deltaY } = msg as RobotMsgType
+        console.log(type, deltaX, deltaY)
+
+        robot.scrollMouse(deltaX as number, deltaY as number)
       }
     }
     const js_path = resolve(__dirname, './peerServer.js')
