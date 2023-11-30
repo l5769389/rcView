@@ -13,8 +13,8 @@ export default defineConfig({
     build: {
       rollupOptions: {
         input: {
-          index: resolve('src/main/index.ts'),
-          peerServer: resolve('src/main/peerServer.ts')
+          index: resolve('src/main/index.ts')
+          // peerServer: resolve('src/main/peerServer.ts')
         }
       }
     }

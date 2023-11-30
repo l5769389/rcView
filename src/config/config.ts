@@ -4,7 +4,7 @@ export default class Config {
   static readonly ROLE: 'SERVER' | 'CLIENT' = this.SERVER
   static readonly SERVER_ID = '1' as const
 
-  static readonly SIGNAL_SERVER_IP = '192.168.31.101'
+  static readonly SIGNAL_SERVER_IP = '192.168.31.16'
   // static readonly SIGNAL_SERVER_IP = '192.168.3.162'
   static readonly SIGNAL_SERVER_PORT = 9000
 

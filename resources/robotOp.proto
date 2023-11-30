@@ -1,0 +1,17 @@
+syntax = "proto3";
+service robotOp {
+  rpc Opmouse (OpRequest) returns (Reply) {}
+}
+
+message OpRequest {
+  string mouseType = 1;
+  int32 x = 2;
+  int32 y = 3;
+  string keys = 4;
+  int32 deltaX = 5;
+  int32 deltaY = 6;
+}
+
+message Reply {
+  string message = 1;
+}
