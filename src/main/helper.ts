@@ -1,10 +1,31 @@
 import Config from '@config/config'
 import { desktopCapturer, ipcMain, screen } from 'electron'
 import { spawn } from 'child_process'
-import { resolve } from 'path'
+import { join, resolve } from 'path'
 import { OpType, RobotMsgType } from '@config/types'
 
 let client
+const basePath = join(__dirname, '..', '..', './thirdPartyProj')
+
+const startPeerServer = async () => {
+  const js_path = resolve(basePath, './peerServer/dist/main.js')
+  const childProcess = spawn('node', [js_path])
+  childProcess.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`)
+  })
+
+  childProcess.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`)
+  })
+
+  childProcess.on('close', (code) => {
+    console.log(`child process exited with code ${code}`)
+  })
+}
+
+if (Config.ROLE === Config.SERVER) {
+  startPeerServer()
+}
 
 export const getDifferentWin = async () => {
   if (Config.ROLE === Config.SERVER) {
@@ -15,7 +36,7 @@ export const getDifferentWin = async () => {
         console.log(e)
       }
     })
-    startPeerServer()
+    // startPeerServer()
     if (!Config.SERVER_AUTO_MACHINE_IS_ROBOT) {
       startPyGrpc()
       await createGrpcClient()
@@ -121,24 +142,8 @@ const robotOp = (robot, msg: any) => {
   }
 }
 
-const startPeerServer = () => {
-  const js_path = resolve(__dirname, './peerServer.js')
-  const childProcess = spawn('node', [js_path])
-  childProcess.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`)
-  })
-
-  childProcess.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`)
-  })
-
-  childProcess.on('close', (code) => {
-    console.log(`child process exited with code ${code}`)
-  })
-}
-
 const startPyGrpc = () => {
-  const py_path = resolve(__dirname, '..', '..', './grpc-py/dist/main.exe')
+  const py_path = resolve(basePath, './grpc-py/dist/main.exe')
   const childProcess = spawn(py_path)
   childProcess.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`)

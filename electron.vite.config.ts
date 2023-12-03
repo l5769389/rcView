@@ -14,8 +14,7 @@ export default defineConfig({
       rollupOptions: {
         input: {
           index: resolve('src/main/index.ts'),
-          peerServer: resolve('src/main/peerServer.ts')
-        }
+        },
       }
     }
   },
