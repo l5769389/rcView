@@ -5,3 +5,7 @@ out
 .idea
 .vscode
 yarn.lock
+/grpc-py/venv/*
+/grpc-py/__pycache__/*
+/grpc-py/dist/*
+/grpc-py/build/*

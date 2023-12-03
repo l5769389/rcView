@@ -1,6 +1,6 @@
 import { MediaConnection, Peer } from 'peerjs'
 import { BasePeer } from './BasePeer'
-import type { PeerMsgType } from '../types'
+import type { PeerMsgType } from '@config/types'
 import { stateChangeCbType } from './PeerTypes'
 
 export class ServerPeer extends BasePeer {
@@ -53,7 +53,7 @@ export class ServerPeer extends BasePeer {
       conn.on('data', (data) => {
         const {
           type,
-          data: { x = -1, y = -1, mouseType, keys,deltaX,deltaY}
+          data: { x = -1, y = -1, mouseType, keys, deltaX, deltaY }
         } = data as PeerMsgType
         if (type === 'operate') {
           const { x: mapX, y: mapY } = this.map2ScreenPosition(x, y)

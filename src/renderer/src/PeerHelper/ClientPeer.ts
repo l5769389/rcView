@@ -1,6 +1,6 @@
 import { DataConnection, MediaConnection, Peer } from 'peerjs'
 import { BasePeer } from './BasePeer'
-import type { PeerMsgType } from '../types'
+import type { PeerMsgType } from '@config/types'
 import type { connectCbType } from './PeerTypes'
 import { stateChangeCbType } from './PeerTypes'
 

@@ -1,20 +1,8 @@
 import Config from '@config/config'
 import { desktopCapturer, ipcMain, screen } from 'electron'
-import robot from 'robotjs'
 import { spawn } from 'child_process'
 import { resolve } from 'path'
-import { OpType } from '@config/types'
-
-import grpc from '@grpc/grpc-js'
-import { proto } from './grpc/proto'
-interface RobotMsgType {
-  mouseType: OpType
-  x: number
-  y: number
-  keys: any
-  deltaX?: number
-  deltaY?: number
-}
+import { OpType, RobotMsgType } from '@config/types'
 
 let client
 
@@ -27,8 +15,11 @@ export const getDifferentWin = async () => {
         console.log(e)
       }
     })
-    // createGrpcClient()
-    // startPeerServer()
+    startPeerServer()
+    if (!Config.SERVER_AUTO_MACHINE_IS_ROBOT) {
+      startPyGrpc()
+      await createGrpcClient()
+    }
   }
 
   ipcMain.handle('desktop', async () => {
@@ -69,22 +60,28 @@ const getScreenSize = () => {
   }
 }
 
-const createGrpcClient = () => {
-  client = new proto.robotOp('127.0.0.1:50052', grpc.credentials.createInsecure())
+const createGrpcClient = async () => {
+  const grpc = await import('@grpc/grpc-js')
+  const { proto } = await import('./grpc/proto')
+  client = new proto.robotOp(Config.GRPC_IP, grpc.credentials.createInsecure())
 }
 
-const opCompute = (msg) => {
-  robotOp(msg)
-  client.Opmouse(msg, function (err, response) {
-    if (err) {
-      console.log(err)
-    } else {
-      console.log('Greeting:', response)
-    }
-  })
+const opCompute = async (msg: RobotMsgType) => {
+  if (Config.SERVER_AUTO_MACHINE_IS_ROBOT) {
+    const robot = await import('robotjs')
+    robotOp(robot, msg)
+  } else {
+    client.Opmouse(msg, function (err, response) {
+      if (err) {
+        console.log(err)
+      } else {
+        console.log('Greeting:', response)
+      }
+    })
+  }
 }
 
-const robotOp = (msg: any) => {
+const robotOp = (robot, msg: any) => {
   const { mouseType: type, x: clientX, y: clientY, keys } = msg as RobotMsgType
   if (type === OpType.mousemove) {
     robot.moveMouse(clientX, clientY)
@@ -96,12 +93,11 @@ const robotOp = (msg: any) => {
     robot.dragMouse(clientX, clientY)
   } else if (type === OpType.keydown) {
     const { key, ctrlKey, shiftKey, altKey } = keys
-    let tapkey = ''
-    tapkey = key
-    if (key.length === 1) {
-      tapkey = key
+    let tapkey = key
+    if (key?.length === 1) {
+      tapkey = key as string
     } else {
-      tapkey = key.toLocaleLowerCase()
+      tapkey = (key as string).toLocaleLowerCase()
     }
     try {
       if (shiftKey) {
@@ -121,7 +117,6 @@ const robotOp = (msg: any) => {
   } else if (type === OpType.wheel) {
     const { deltaX, deltaY } = msg as RobotMsgType
     console.log(type, deltaX, deltaY)
-
     robot.scrollMouse(0, 10)
   }
 }
@@ -129,6 +124,22 @@ const robotOp = (msg: any) => {
 const startPeerServer = () => {
   const js_path = resolve(__dirname, './peerServer.js')
   const childProcess = spawn('node', [js_path])
+  childProcess.stdout.on('data', (data) => {
+    console.log(`stdout: ${data}`)
+  })
+
+  childProcess.stderr.on('data', (data) => {
+    console.error(`stderr: ${data}`)
+  })
+
+  childProcess.on('close', (code) => {
+    console.log(`child process exited with code ${code}`)
+  })
+}
+
+const startPyGrpc = () => {
+  const py_path = resolve(__dirname, '..', '..', './grpc-py/dist/main.exe')
+  const childProcess = spawn(py_path)
   childProcess.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`)
   })
