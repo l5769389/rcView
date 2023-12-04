@@ -1,26 +1,25 @@
 import Config from '@config/config'
 import { desktopCapturer, ipcMain, screen } from 'electron'
-import { spawn } from 'child_process'
+import { execSync, spawn } from 'child_process'
 import { join, resolve } from 'path'
 import { OpType, RobotMsgType } from '@config/types'
+import os from 'os'
 
 let client
-const basePath = join(__dirname, '..', '..', './thirdPartyProj')
+let basePath = ''
+
+let jsProcess
+let pyProcess
+
+if (import.meta.env.PROD) {
+  basePath = join(__dirname, '..', '..', '..', '..', './thirdPartyProj')
+} else {
+  basePath = join(__dirname, '..', '..', './thirdPartyProj')
+}
 
 const startPeerServer = async () => {
-  const js_path = resolve(basePath, './peerServer/dist/main.js')
-  const childProcess = spawn('node', [js_path])
-  childProcess.stdout.on('data', (data) => {
-    console.log(`stdout: ${data}`)
-  })
-
-  childProcess.stderr.on('data', (data) => {
-    console.error(`stderr: ${data}`)
-  })
-
-  childProcess.on('close', (code) => {
-    console.log(`child process exited with code ${code}`)
-  })
+  const js_path = resolve(basePath, './peerServer/main.exe')
+  jsProcess = spawn(js_path)
 }
 
 if (Config.ROLE === Config.SERVER) {
@@ -41,6 +40,7 @@ export const getDifferentWin = async () => {
       startPyGrpc()
       await createGrpcClient()
     }
+    listenExit()
   }
 
   ipcMain.handle('desktop', async () => {
@@ -101,7 +101,6 @@ const opCompute = async (msg: RobotMsgType) => {
     })
   }
 }
-
 const robotOp = (robot, msg: any) => {
   const { mouseType: type, x: clientX, y: clientY, keys } = msg as RobotMsgType
   if (type === OpType.mousemove) {
@@ -144,16 +143,49 @@ const robotOp = (robot, msg: any) => {
 
 const startPyGrpc = () => {
   const py_path = resolve(basePath, './grpc-py/dist/main.exe')
-  const childProcess = spawn(py_path)
-  childProcess.stdout.on('data', (data) => {
+  pyProcess = spawn(py_path)
+  pyProcess.stdout.on('data', (data) => {
     console.log(`stdout: ${data}`)
   })
 
-  childProcess.stderr.on('data', (data) => {
+  pyProcess.stderr.on('data', (data) => {
     console.error(`stderr: ${data}`)
   })
 
-  childProcess.on('close', (code) => {
+  pyProcess.on('close', (code) => {
     console.log(`child process exited with code ${code}`)
+  })
+}
+
+const killSubProcess = () => {
+  if (jsProcess) {
+    try {
+      if (os.platform() == 'darwin') {
+        execSync(`kill -9 ${jsProcess.pid}`)
+      } else {
+        execSync(`taskkill /f /t /im "${jsProcess.pid}"`)
+      }
+    } catch (e) {
+      console.log(`py kill err:${e}`)
+    }
+  }
+  if (pyProcess) {
+    try {
+      if (os.platform() == 'darwin') {
+        execSync(`kill -9 ${pyProcess.pid}`)
+      } else {
+        execSync(`taskkill /f /t /im "${pyProcess.pid}"`)
+      }
+    } catch (e) {
+      console.log(`py kill err:${e}`)
+    }
+  }
+  process.exit(0)
+}
+
+const listenExit = () => {
+  const events = ['exit', 'SIGINT', 'SIGTERM']
+  events.forEach((item) => {
+    process.on(item, killSubProcess)
   })
 }

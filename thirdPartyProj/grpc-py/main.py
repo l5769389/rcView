@@ -1,9 +1,12 @@
+import signal
+import sys
 import time
 from concurrent import futures
 import grpc
 import pyautogui
 
 import robotOp_pb2, robotOp_pb2_grpc
+
 
 
 class Handler(robotOp_pb2_grpc.robotOpServicer):
@@ -53,7 +56,7 @@ class Handler(robotOp_pb2_grpc.robotOpServicer):
 def run():
   server = grpc.server(futures.ThreadPoolExecutor(max_workers=10))
   robotOp_pb2_grpc.add_robotOpServicer_to_server(Handler(), server)
-  server.add_insecure_port('[::]:50052')
+  server.add_insecure_port('0.0.0.0:50052')
   server.start()
   print("start service...")
   try:

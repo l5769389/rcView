@@ -306,14 +306,6 @@ const handleCanplay = () => {
             >断开连接
           </n-button>
         </div>
-        <div>
-          <span class="text-[15px]"
-            >video为:{{ videoSizeRef.width }} * {{ videoSizeRef.height }}</span
-          >
-          <span class="text-[15px]">
-            video实际为：{{ videoActualSizeRef.width }} * {{ videoActualSizeRef.height }}
-          </span>
-        </div>
         <n-button text @click="isFoldRef = !isFoldRef">
           <n-icon size="40" class="text-gray-500">
             <angle-double-left />

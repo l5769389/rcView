@@ -9,6 +9,10 @@ files:
   - '!{.eslintignore,.eslintrc.cjs,.prettierignore,.prettierrc.yaml,dev-app-update.yml,CHANGELOG.md,README.md}'
   - '!{.env-client,.env-client.*,.yarnrc,pnpm-lock.yaml}'
   - '!{tsconfig.json,tsconfig.node.json,tsconfig.web.json}'
+extraFiles:
+  - 'thirdPartyProj/grpc-py/dist/main.exe'
+  - 'thirdPartyProj/peerServer/dist/main.js'
+
 asarUnpack:
   - resources/**
 win:
