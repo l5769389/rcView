@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { reactive, ref, watch } from 'vue'
 import _ from 'lodash'
-import { PeerMsgType } from '@renderer/types'
+import type { PeerMsgType } from '@config/types'
 import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 import { ArrowMove20Filled } from '@vicons/fluent'
 import { Eye, AngleDoubleLeft, AngleDoubleRight } from '@vicons/fa'

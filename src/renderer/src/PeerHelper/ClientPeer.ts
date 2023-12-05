@@ -71,6 +71,7 @@ export class ClientPeer extends BasePeer {
 
   disconnect = () => {
     this.conn?.close()
+    this.call?.close()
     this.conn = null
     this.updateConnectState({
       connect2Peer: false

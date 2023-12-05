@@ -10,11 +10,11 @@ export enum OpType {
 
 export interface RobotMsgType {
   mouseType: OpType
-  x: number
-  y: number
+  x?: number
+  y?: number
   deltaX?: number
   deltaY?: number
-  keys: {
+  keys?: {
     key?: string
     ctrlKey?: boolean
     shiftKey?: boolean

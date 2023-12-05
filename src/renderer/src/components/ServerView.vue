@@ -1,20 +1,21 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import { ServerPeer } from '@renderer/PeerHelper/ServerPeer'
+import { MediaConnection } from 'peerjs'
 
 const connectState = ref({
   connect2Server: false,
   connect2Peer: false,
-  callMap: new Map()
+  callMap: new Map<number, MediaConnection>()
 })
 
 const countRef = ref(0)
-const clients = ref([])
+const clients = ref<number[]>([])
 
 const server = new ServerPeer((state) => {
   Object.assign(connectState.value, state)
   countRef.value = connectState.value.callMap.size
-  Array.from(connectState.value.callMap.keys())
+  clients.value = Array.from(connectState.value.callMap.keys())
 })
 
 const disconnect = (key: number) => {

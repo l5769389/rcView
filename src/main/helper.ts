@@ -92,11 +92,9 @@ const opCompute = async (msg: RobotMsgType) => {
     const robot = await import('robotjs')
     robotOp(robot, msg)
   } else {
-    client.Opmouse(msg, function (err, response) {
+    client.Opmouse(msg, function (err) {
       if (err) {
         console.log(err)
-      } else {
-        console.log('Greeting:', response)
       }
     })
   }
