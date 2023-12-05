@@ -1,11 +1,11 @@
 import { ConnectStateType, stateChangeCbType } from './PeerTypes'
-import Config from '@config/config'
 import { MediaConnection } from 'peerjs'
+import { config } from '@/config/config'
 
 export class BasePeer {
-  MAINID = Config.SERVER_ID
-  HOST = Config.SIGNAL_SERVER_IP
-  PORT = Config.SIGNAL_SERVER_PORT
+  MAINID = config.SERVER_ID
+  HOST = config.SIGNAL_SERVER_IP
+  PORT = config.SIGNAL_SERVER_PORT
   connectState: ConnectStateType = {
     connect2Server: false,
     connect2Peer: false,

@@ -1,8 +1,10 @@
-import {PeerServer} from 'peer'
-
-PeerServer({
+import { PeerServer } from 'peer'
+PeerServer(
+  {
     port: 9000,
     path: '/'
-}, server => {
+  },
+  (server) => {
     console.log('peer server start')
-})
+  }
+)

@@ -1,16 +1,38 @@
 import { app, shell, BrowserWindow } from 'electron'
-import { join } from 'path'
+import { join, resolve } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getDifferentWin } from './helper'
-import Config from '@config/config'
+import { setConfig, config as Config } from '../config/config'
+import * as fs from 'fs'
+import log from 'electron-log/main'
 
-getDifferentWin()
+init()
+
+async function init() {
+  loadConfig()
+  await getDifferentWin()
+}
+
+function loadConfig() {
+  let jsonFilePath = ''
+  let jsonFile = ''
+  if (import.meta.env.PROD) {
+    jsonFilePath = join(__dirname, '..', '..', '..', '..', './config/config.json')
+  } else {
+    jsonFilePath = join(__dirname, '..', '..', './config/config.json')
+  }
+  log.info(`config path:${jsonFilePath}`)
+  jsonFile = fs.readFileSync(resolve(jsonFilePath), 'utf-8')
+  const file = JSON.parse(jsonFile)
+  setConfig(file)
+}
 
 function createWindow(): void {
   // Create the browser window.
   let mainWindow
-  if (Config.ROLE === Config.SERVER) {
+  console.log(Config['IS_SERVER'])
+  if (Config['IS_SERVER']) {
     mainWindow = new BrowserWindow({
       width: 700,
       height: 100,

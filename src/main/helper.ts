@@ -1,9 +1,11 @@
-import Config from '@config/config'
 import { desktopCapturer, ipcMain, screen } from 'electron'
 import { execSync, spawn } from 'child_process'
 import { join, resolve } from 'path'
 import { OpType, RobotMsgType } from '@config/types'
 import os from 'os'
+import { config as Config } from '../config/config'
+import log from 'electron-log/main'
+import { app } from 'electron'
 
 let client
 let basePath = ''
@@ -16,18 +18,19 @@ if (import.meta.env.PROD) {
 } else {
   basePath = join(__dirname, '..', '..', './thirdPartyProj')
 }
+log.log(`third part basePath:${basePath}`)
 
 const startPeerServer = async () => {
   const js_path = resolve(basePath, './peerServer/main.exe')
   jsProcess = spawn(js_path)
 }
 
-if (Config.ROLE === Config.SERVER) {
+if (Config.IS_SERVER) {
   startPeerServer()
 }
 
 export const getDifferentWin = async () => {
-  if (Config.ROLE === Config.SERVER) {
+  if (Config.IS_SERVER) {
     ipcMain.addListener('robotOp', (_e, msg) => {
       try {
         opCompute(msg)
@@ -35,12 +38,12 @@ export const getDifferentWin = async () => {
         console.log(e)
       }
     })
-    // startPeerServer()
+    startPeerServer()
+    listenExit()
     if (!Config.SERVER_AUTO_MACHINE_IS_ROBOT) {
       startPyGrpc()
       await createGrpcClient()
     }
-    listenExit()
   }
 
   ipcMain.handle('desktop', async () => {
@@ -99,7 +102,7 @@ const opCompute = async (msg: RobotMsgType) => {
     })
   }
 }
-const robotOp = (robot, msg: any) => {
+const robotOp = (robot, msg: RobotMsgType) => {
   const { mouseType: type, x: clientX, y: clientY, keys } = msg as RobotMsgType
   if (type === OpType.mousemove) {
     robot.moveMouse(clientX, clientY)
@@ -110,7 +113,7 @@ const robotOp = (robot, msg: any) => {
   } else if (type === OpType.dragMouse) {
     robot.dragMouse(clientX, clientY)
   } else if (type === OpType.keydown) {
-    const { key, ctrlKey, shiftKey, altKey } = keys
+    const { key, ctrlKey, shiftKey, altKey } = keys!
     let tapkey = key
     if (key?.length === 1) {
       tapkey = key as string
@@ -164,7 +167,7 @@ const killSubProcess = () => {
         execSync(`taskkill /f /t /im "${jsProcess.pid}"`)
       }
     } catch (e) {
-      console.log(`py kill err:${e}`)
+      log.error(`kill js process error: ${e}`)
     }
   }
   if (pyProcess) {
@@ -175,7 +178,7 @@ const killSubProcess = () => {
         execSync(`taskkill /f /t /im "${pyProcess.pid}"`)
       }
     } catch (e) {
-      console.log(`py kill err:${e}`)
+      log.error(`kill py process error: ${e}`)
     }
   }
   process.exit(0)
@@ -184,6 +187,11 @@ const killSubProcess = () => {
 const listenExit = () => {
   const events = ['exit', 'SIGINT', 'SIGTERM']
   events.forEach((item) => {
+    log.log(`main process :${item}`)
     process.on(item, killSubProcess)
+  })
+  app.on('window-all-closed', () => {
+    log.log('window-all-closed')
+    killSubProcess()
   })
 }

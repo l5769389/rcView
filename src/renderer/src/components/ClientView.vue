@@ -6,10 +6,12 @@ import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 import { ArrowMove20Filled } from '@vicons/fluent'
 import { Eye, AngleDoubleLeft, AngleDoubleRight } from '@vicons/fa'
 import { OpType } from '@config/types'
+import { config } from '@/config/config'
 
 const remoteViewRef = ref()
 const isOperatorRef = ref(true)
 
+console.log(config)
 const peerHelper: ClientPeer = new ClientPeer((state) => {
   Object.assign(connectState, state)
 })
@@ -187,6 +189,7 @@ const getUniformedPosition = (clientX: number, clientY: number) => {
 }
 
 const connect = () => {
+  isOperatorRef.value = true
   peerHelper.connect2MainPeer((stream) => {
     remoteViewRef.value.srcObject = stream
   })

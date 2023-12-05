@@ -7,7 +7,9 @@
     "src/renderer/src/types.ts",
     "src/**/*",
     "src/config/*.ts",
-    "src/config/**"
+    "src/config/**",
+    "src/renderer/**/*.ts",
+    "src/renderer/**/*"
   ],
   "compilerOptions": {
     "composite": true,

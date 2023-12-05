@@ -15,10 +15,10 @@ export interface RobotMsgType {
   deltaX?: number
   deltaY?: number
   keys?: {
-    key?: string
-    ctrlKey?: boolean
-    shiftKey?: boolean
-    altKey?: boolean
+    key: string
+    ctrlKey: boolean
+    shiftKey: boolean
+    altKey: boolean
   }
 }
 

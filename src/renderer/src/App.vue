@@ -1,11 +1,13 @@
 <script setup lang="ts">
 import ClientView from '@renderer/components/ClientView.vue'
 import ServerView from '@renderer/components/ServerView.vue'
-import Config from '@config/config'
 import { ref } from 'vue'
+import { config, setConfig } from '../../config/config'
 
-const Role = Config.ROLE
-const isServerRef = ref<boolean>(Role === Config.SERVER)
+const Config = JSON.parse(window['api'].readConfig())
+setConfig(Config)
+
+const isServerRef = ref<boolean>(config['IS_SERVER'])
 </script>
 
 <template>
