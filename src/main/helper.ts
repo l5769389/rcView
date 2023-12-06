@@ -91,56 +91,52 @@ const createGrpcClient = async () => {
 }
 
 const opCompute = async (msg: RobotMsgType) => {
-  if (Config.SERVER_AUTO_MACHINE_IS_ROBOT) {
-    const robot = await import('robotjs')
-    robotOp(robot, msg)
-  } else {
-    client.Opmouse(msg, function (err) {
-      if (err) {
-        console.log(err)
-      }
-    })
-  }
-}
-const robotOp = (robot, msg: RobotMsgType) => {
-  const { mouseType: type, x: clientX, y: clientY, keys } = msg as RobotMsgType
-  if (type === OpType.mousemove) {
-    robot.moveMouse(clientX, clientY)
-  } else if (type === OpType.mousedown) {
-    robot.mouseToggle('down')
-  } else if (type === OpType.mouseup) {
-    robot.mouseToggle('up')
-  } else if (type === OpType.dragMouse) {
-    robot.dragMouse(clientX, clientY)
-  } else if (type === OpType.keydown) {
-    const { key, ctrlKey, shiftKey, altKey } = keys!
-    let tapkey = key
-    if (key?.length === 1) {
-      tapkey = key as string
-    } else {
-      tapkey = (key as string).toLocaleLowerCase()
+  client.Opmouse(msg, function (err) {
+    if (err) {
+      console.log(err)
     }
-    try {
-      if (shiftKey) {
-        robot.keyTap(tapkey, ['shift'])
-      } else if (ctrlKey) {
-        robot.keyTap(tapkey, ['control'])
-      } else if (altKey) {
-        robot.keyTap(tapkey, ['alt'])
-      } else {
-        robot.keyTap(tapkey)
-      }
-    } catch (e) {
-      console.log(e)
-    }
-  } else if (type === OpType.contextmenu) {
-    robot.mouseClick('right')
-  } else if (type === OpType.wheel) {
-    const { deltaX, deltaY } = msg as RobotMsgType
-    console.log(type, deltaX, deltaY)
-    robot.scrollMouse(0, 10)
-  }
+  })
 }
+// robotjs的方式暂时被抛弃。
+// const robotOp = (robot, msg: RobotMsgType) => {
+//   const { mouseType: type, x: clientX, y: clientY, keys } = msg as RobotMsgType
+//   if (type === OpType.mousemove) {
+//     robot.moveMouse(clientX, clientY)
+//   } else if (type === OpType.mousedown) {
+//     robot.mouseToggle('down')
+//   } else if (type === OpType.mouseup) {
+//     robot.mouseToggle('up')
+//   } else if (type === OpType.dragMouse) {
+//     robot.dragMouse(clientX, clientY)
+//   } else if (type === OpType.keydown) {
+//     const { key, ctrlKey, shiftKey, altKey } = keys!
+//     let tapkey = key
+//     if (key?.length === 1) {
+//       tapkey = key as string
+//     } else {
+//       tapkey = (key as string).toLocaleLowerCase()
+//     }
+//     try {
+//       if (shiftKey) {
+//         robot.keyTap(tapkey, ['shift'])
+//       } else if (ctrlKey) {
+//         robot.keyTap(tapkey, ['control'])
+//       } else if (altKey) {
+//         robot.keyTap(tapkey, ['alt'])
+//       } else {
+//         robot.keyTap(tapkey)
+//       }
+//     } catch (e) {
+//       console.log(e)
+//     }
+//   } else if (type === OpType.contextmenu) {
+//     robot.mouseClick('right')
+//   } else if (type === OpType.wheel) {
+//     const { deltaX, deltaY } = msg as RobotMsgType
+//     console.log(type, deltaX, deltaY)
+//     robot.scrollMouse(0, 10)
+//   }
+// }
 
 const startPyGrpc = () => {
   const py_path = resolve(basePath, './grpc-py/dist/main.exe')

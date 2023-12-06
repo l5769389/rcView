@@ -2,6 +2,8 @@ import { ConnectStateType, stateChangeCbType } from './PeerTypes'
 import { MediaConnection } from 'peerjs'
 import { config } from '@/config/config'
 
+console.log(`config: ${JSON.stringify(config)}`)
+
 export class BasePeer {
   MAINID = config.SERVER_ID
   HOST = config.SIGNAL_SERVER_IP

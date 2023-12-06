@@ -2,6 +2,7 @@ import { MediaConnection, Peer } from 'peerjs'
 import { BasePeer } from './BasePeer'
 import type { PeerMsgType } from '@config/types'
 import { stateChangeCbType } from './PeerTypes'
+import log from 'electron-log/renderer'
 
 export class ServerPeer extends BasePeer {
   peer: Peer | null = null
@@ -74,6 +75,12 @@ export class ServerPeer extends BasePeer {
       this.updateConnectState({
         connect2Server: false
       })
+    })
+    this.peer?.on('error', (e) => {
+      this.updateConnectState({
+        connect2Server: false
+      })
+      log.error(`peer error: ${e.message}`)
     })
 
     this.peer?.on('call', async (call) => {
