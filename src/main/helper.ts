@@ -1,7 +1,7 @@
 import { desktopCapturer, ipcMain, screen } from 'electron'
 import { execSync, spawn } from 'child_process'
 import { join, resolve } from 'path'
-import { OpType, RobotMsgType } from '@config/types'
+import { RobotMsgType } from '@config/types'
 import os from 'os'
 import { config as Config } from '../config/config'
 import log from 'electron-log/main'

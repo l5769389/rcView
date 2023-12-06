@@ -9,14 +9,17 @@ import { OpType } from '@config/types'
 
 const remoteViewRef = ref()
 const isOperatorRef = ref(true)
-
 let peerHelper: ClientPeer
 
 onMounted(() => {
+  connect2peer()
+})
+
+const connect2peer = () => {
   peerHelper = new ClientPeer((state) => {
     Object.assign(connectState, state)
   })
-})
+}
 
 const connectState = reactive({
   connect2Server: false,
@@ -183,8 +186,8 @@ class VideoOp {
     const x = clientX - left
     const y = clientY - top
     return {
-      x: x / videoActualSizeRef.value.width,
-      y: y / videoActualSizeRef.value.height
+      x: x / videoSizeRef.value.width,
+      y: y / videoSizeRef.value.height
     }
   }
 
@@ -275,7 +278,7 @@ const handleCanplay = () => {
 </script>
 
 <template>
-  <div class="p-[10px] pt-[20px] text-[25px] bg-black w-full h-full relative overflow-hidden">
+  <div class="text-[25px] bg-black w-full h-full relative overflow-hidden">
     <div class="h-[50px] absolute top-0 left-0 z-10">
       <div
         v-if="!isFoldRef"
@@ -284,6 +287,9 @@ const handleCanplay = () => {
         <div>
           <span class="mr-[10px]">信令服务器连接状态：</span>
           <n-switch v-model:value="connectState.connect2Server" size="large" disabled />
+          <n-button v-if="!connectState.connect2Server" @click="connect2peer"
+            >连接信令服务器</n-button
+          >
         </div>
         <div>
           <span class="mr-[10px]">远程桌面连接状态:</span>
@@ -338,7 +344,7 @@ const handleCanplay = () => {
     <div class="w-full h-full flex justify-center">
       <video
         ref="remoteViewRef"
-        class="w-max-[100%] h-max-[100%]"
+        class="w-max-[100%] h-max-[100%] object-contain"
         :class="isOperatorRef ? 'cursor-none' : ''"
         autoplay
         playsinline
