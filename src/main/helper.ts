@@ -30,22 +30,6 @@ if (Config.IS_SERVER) {
 }
 
 export const getDifferentWin = async () => {
-  if (Config.IS_SERVER) {
-    ipcMain.addListener('robotOp', (_e, msg) => {
-      try {
-        opCompute(msg)
-      } catch (e) {
-        console.log(e)
-      }
-    })
-    startPeerServer()
-    listenExit()
-    if (!Config.SERVER_AUTO_MACHINE_IS_ROBOT) {
-      startPyGrpc()
-      await createGrpcClient()
-    }
-  }
-
   ipcMain.handle('desktop', async () => {
     return await desktopCapturer
       .getSources({
@@ -70,10 +54,25 @@ export const getDifferentWin = async () => {
         }
       })
   })
+  if (Config.IS_SERVER) {
+    ipcMain.addListener('robotOp', (_e, msg) => {
+      try {
+        opCompute(msg)
+      } catch (e) {
+        console.log(e)
+      }
+    })
+    await startPeerServer()
+    listenExit()
+    startPyGrpc()
+    await createGrpcClient()
+    log.log('createGrpcClient exec finish')
+  }
 }
 
 const getScreenSize = () => {
   const display = screen.getPrimaryDisplay()
+  console.log(JSON.stringify(display))
   const { width: screenWidth, height: screenHeight } = display.size
   const width = screenWidth
   const height = screenHeight
@@ -87,7 +86,13 @@ const getScreenSize = () => {
 const createGrpcClient = async () => {
   const grpc = await import('@grpc/grpc-js')
   const { proto } = await import('./grpc/proto')
-  client = new proto.robotOp(Config.GRPC_IP, grpc.credentials.createInsecure())
+  const ClientConstructor = grpc.makeClientConstructor(
+    (proto.robotOp as any).service,
+    'robotOp',
+    {}
+  )
+  client = new ClientConstructor(Config.GRPC_IP, grpc.credentials.createInsecure())
+  // client = new proto.robotOp(Config.GRPC_IP, grpc.credentials.createInsecure())
 }
 
 const opCompute = async (msg: RobotMsgType) => {
@@ -183,7 +188,6 @@ const killSubProcess = () => {
 const listenExit = () => {
   const events = ['exit', 'SIGINT', 'SIGTERM']
   events.forEach((item) => {
-    log.log(`main process :${item}`)
     process.on(item, killSubProcess)
   })
   app.on('window-all-closed', () => {

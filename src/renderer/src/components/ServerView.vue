@@ -1,5 +1,5 @@
 <script setup lang="ts">
-import { ref } from 'vue'
+import { onMounted, ref } from 'vue'
 import { ServerPeer } from '@renderer/PeerHelper/ServerPeer'
 import { MediaConnection } from 'peerjs'
 
@@ -11,12 +11,19 @@ const connectState = ref({
 
 const countRef = ref(0)
 const clients = ref<number[]>([])
+let server: ServerPeer
 
-const server = new ServerPeer((state) => {
-  Object.assign(connectState.value, state)
-  countRef.value = connectState.value.callMap.size
-  clients.value = Array.from(connectState.value.callMap.keys())
+onMounted(() => {
+  connect2peer()
 })
+
+const connect2peer = () => {
+  server = new ServerPeer((state) => {
+    Object.assign(connectState.value, state)
+    countRef.value = connectState.value.callMap.size
+    clients.value = Array.from(connectState.value.callMap.keys())
+  })
+}
 
 const disconnect = (key: number) => {
   server.disconnect2PeerCall(key)
@@ -28,6 +35,7 @@ const disconnect = (key: number) => {
     <div>
       <span class="mr-[10px]">信令服务器连接状态：</span>
       <n-switch v-model:value="connectState.connect2Server" size="large" disabled />
+      <n-button v-if="!connectState.connect2Server" @click="connect2peer">连接信令服务器</n-button>
     </div>
     <div v-if="clients.length > 0">
       <span>断开连接：</span>

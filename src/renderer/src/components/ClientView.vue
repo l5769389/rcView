@@ -1,19 +1,21 @@
 <script setup lang="ts">
-import { reactive, ref, watch } from 'vue'
+import { onMounted, reactive, ref, watch } from 'vue'
 import _ from 'lodash'
 import type { PeerMsgType } from '@config/types'
 import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 import { ArrowMove20Filled } from '@vicons/fluent'
 import { Eye, AngleDoubleLeft, AngleDoubleRight } from '@vicons/fa'
 import { OpType } from '@config/types'
-import { config } from '@/config/config'
 
 const remoteViewRef = ref()
 const isOperatorRef = ref(true)
 
-console.log(config)
-const peerHelper: ClientPeer = new ClientPeer((state) => {
-  Object.assign(connectState, state)
+let peerHelper: ClientPeer
+
+onMounted(() => {
+  peerHelper = new ClientPeer((state) => {
+    Object.assign(connectState, state)
+  })
 })
 
 const connectState = reactive({
@@ -21,147 +23,199 @@ const connectState = reactive({
   connect2Peer: false
 })
 
-let mousedownFlag = false
-const handleTouchstart = (e: TouchEvent) => {
-  console.log('touch start')
-  const clientX = e.touches[0]?.clientX
-  const clientY = e.touches[0]?.clientY
-  const { x, y } = getUniformedPosition(clientX, clientY)
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.mousedown,
-      x,
-      y
-    }
-  }
-  sendMsg(msg)
-}
+class VideoOp {
+  static mousedownFlag = false
 
-const handleMousedown = (e: MouseEvent) => {
-  console.log('mousedown')
-  const clientX = e.clientX
-  const clientY = e.clientY
-  mousedownFlag = true
-  const { x, y } = getUniformedPosition(clientX, clientY)
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.mousedown,
-      x,
-      y
+  static handleTouchstart = (e: TouchEvent) => {
+    console.log('touch start')
+    const clientX = e.touches[0]?.clientX
+    const clientY = e.touches[0]?.clientY
+    const { x, y } = this.getUniformedPosition(clientX, clientY)
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.mousedown,
+        x,
+        y
+      }
     }
+    this.sendMsg(msg)
   }
-  sendMsg(msg)
-}
-const handleTouchMove = _.throttle((e: TouchEvent) => {
-  const clientX = e.touches[0]?.clientX
-  const clientY = e.touches[0]?.clientY
-  const { x, y } = getUniformedPosition(clientX, clientY)
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.dragMouse,
-      x,
-      y
-    }
-  }
-  sendMsg(msg)
-}, 50)
-const handleMouseMove = _.throttle((e: MouseEvent) => {
-  const clientX = e.clientX
-  const clientY = e.clientY
-  const { x, y } = getUniformedPosition(clientX, clientY)
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: mousedownFlag ? OpType.dragMouse : OpType.mousemove,
-      x,
-      y
-    }
-  }
-  sendMsg(msg)
-}, 20)
-const handleTouchend = () => {
-  mousedownFlag = false
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.mouseup
-    }
-  }
-  sendMsg(msg)
-}
-const handleTouchCancel = () => {
-  mousedownFlag = false
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.mouseup
-    }
-  }
-  sendMsg(msg)
-}
-const handleMouseup = () => {
-  console.log('mouse up')
-  mousedownFlag = false
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.mouseup
-    }
-  }
-  sendMsg(msg)
-}
-const handleMouseleave = () => {
-  mousedownFlag = false
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.mouseup
-    }
-  }
-  sendMsg(msg)
-}
-const handleMouseout = () => {
-  mousedownFlag = false
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.mouseup
-    }
-  }
-  sendMsg(msg)
-}
-const handleWheel = (e: WheelEvent) => {
-  const clientX = e.deltaX
-  const clientY = e.deltaY
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.wheel,
-      deltaX: clientX,
-      deltaY: clientY
-    }
-  }
-  console.log(JSON.stringify(msg))
-  sendMsg(msg)
-}
-const handleContextmenu = () => {
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.contextmenu
-    }
-  }
-  sendMsg(msg)
-}
 
-const sendMsg = (msg) => {
-  if (!isOperatorRef.value || !peerHelper.connectState.connect2Peer) {
-    return
+  static handleMousedown = (e: MouseEvent) => {
+    console.log('mousedown')
+    const clientX = e.clientX
+    const clientY = e.clientY
+    this.mousedownFlag = true
+    const { x, y } = this.getUniformedPosition(clientX, clientY)
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.mousedown,
+        x,
+        y
+      }
+    }
+    this.sendMsg(msg)
   }
-  peerHelper.sendMsg(msg)
+
+  static handleTouchMove = _.throttle((e: TouchEvent) => {
+    const clientX = e.touches[0]?.clientX
+    const clientY = e.touches[0]?.clientY
+    const { x, y } = this.getUniformedPosition(clientX, clientY)
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.dragMouse,
+        x,
+        y
+      }
+    }
+    this.sendMsg(msg)
+  }, 50)
+
+  static handleMouseMove = _.throttle((e: MouseEvent) => {
+    const clientX = e.clientX
+    const clientY = e.clientY
+    const { x, y } = this.getUniformedPosition(clientX, clientY)
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: this.mousedownFlag ? OpType.dragMouse : OpType.mousemove,
+        x,
+        y
+      }
+    }
+    this.sendMsg(msg)
+  }, 20)
+
+  static handleTouchend = () => {
+    this.mousedownFlag = false
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.mouseup
+      }
+    }
+    this.sendMsg(msg)
+  }
+  static handleTouchCancel = () => {
+    this.mousedownFlag = false
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.mouseup
+      }
+    }
+    this.sendMsg(msg)
+  }
+  static handleMouseup = () => {
+    console.log('mouse up')
+    this.mousedownFlag = false
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.mouseup
+      }
+    }
+    this.sendMsg(msg)
+  }
+
+  static handleMouseleave = () => {
+    this.mousedownFlag = false
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.mouseup
+      }
+    }
+    this.sendMsg(msg)
+  }
+
+  static handleMouseout = () => {
+    this.mousedownFlag = false
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.mouseup
+      }
+    }
+    this.sendMsg(msg)
+  }
+  static handleWheel = (e: WheelEvent) => {
+    const clientX = e.deltaX
+    const clientY = e.deltaY
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.wheel,
+        deltaX: clientX,
+        deltaY: clientY
+      }
+    }
+    console.log(JSON.stringify(msg))
+    this.sendMsg(msg)
+  }
+
+  static handleContextmenu = () => {
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.contextmenu
+      }
+    }
+    this.sendMsg(msg)
+  }
+
+  static sendMsg = (msg) => {
+    if (!isOperatorRef.value || !peerHelper.connectState.connect2Peer) {
+      return
+    }
+    peerHelper.sendMsg(msg)
+  }
+
+  static getUniformedPosition = (clientX: number, clientY: number) => {
+    const { width, height, left, top } = remoteViewRef.value.getBoundingClientRect()
+    videoSizeRef.value = {
+      width: width,
+      height: height
+    }
+    const x = clientX - left
+    const y = clientY - top
+    return {
+      x: x / videoActualSizeRef.value.width,
+      y: y / videoActualSizeRef.value.height
+    }
+  }
+
+  static getKeydownMsg = (e: KeyboardEvent) => {
+    const { ctrlKey, shiftKey, altKey, key, code } = e
+    let sendKey = key
+    if (shiftKey) {
+      // todo 键盘的映射。
+      if (code.includes('Digit')) {
+        sendKey = code[code.length - 1]
+      }
+    }
+    const msg: PeerMsgType = {
+      type: 'operate',
+      data: {
+        mouseType: OpType.keydown,
+        keys: {
+          key: sendKey,
+          ctrlKey,
+          shiftKey,
+          altKey
+        }
+      }
+    }
+    return msg
+  }
+
+  static handleKeyEvent = (e) => {
+    const msg = VideoOp.getKeydownMsg(e)
+    peerHelper.sendMsg(msg)
+  }
 }
 
 const videoSizeRef = ref({
@@ -173,20 +227,6 @@ const videoActualSizeRef = ref({
   width: 1,
   height: 1
 })
-
-const getUniformedPosition = (clientX: number, clientY: number) => {
-  const { width, height, left, top } = remoteViewRef.value.getBoundingClientRect()
-  videoSizeRef.value = {
-    width: width,
-    height: height
-  }
-  const x = clientX - left
-  const y = clientY - top
-  return {
-    x: x / videoActualSizeRef.value.width,
-    y: y / videoActualSizeRef.value.height
-  }
-}
 
 const connect = () => {
   isOperatorRef.value = true
@@ -214,39 +254,10 @@ watch(
 )
 
 const listenKeyInput = () => {
-  document.addEventListener(OpType.keydown, handleKeyEvent)
+  document.addEventListener(OpType.keydown, VideoOp.handleKeyEvent)
 }
 const removeKeyInputListen = () => {
-  document.removeEventListener(OpType.keydown, handleKeyEvent)
-}
-
-const getKeydownMsg = (e: KeyboardEvent) => {
-  const { ctrlKey, shiftKey, altKey, key, code } = e
-  let sendKey = key
-  if (shiftKey) {
-    // todo 键盘的映射。
-    if (code.includes('Digit')) {
-      sendKey = code[code.length - 1]
-    }
-  }
-  const msg: PeerMsgType = {
-    type: 'operate',
-    data: {
-      mouseType: OpType.keydown,
-      keys: {
-        key: sendKey,
-        ctrlKey,
-        shiftKey,
-        altKey
-      }
-    }
-  }
-  return msg
-}
-
-const handleKeyEvent = (e) => {
-  const msg = getKeydownMsg(e)
-  peerHelper.sendMsg(msg)
+  document.removeEventListener(OpType.keydown, VideoOp.handleKeyEvent)
 }
 
 const disconnect = () => {
@@ -333,17 +344,17 @@ const handleCanplay = () => {
         playsinline
         muted
         @canplay="handleCanplay"
-        @touchstart="handleTouchstart"
-        @mousedown="handleMousedown"
-        @touchmove="handleTouchMove"
-        @mousemove="handleMouseMove"
-        @touchend="handleTouchend"
-        @touchcancel="handleTouchCancel"
-        @mouseup="handleMouseup"
-        @mouseleave="handleMouseleave"
-        @mouseout="handleMouseout"
-        @wheel="handleWheel"
-        @contextmenu="handleContextmenu"
+        @touchstart="VideoOp.handleTouchstart"
+        @mousedown="VideoOp.handleMousedown"
+        @touchmove="VideoOp.handleTouchMove"
+        @mousemove="VideoOp.handleMouseMove"
+        @touchend="VideoOp.handleTouchend"
+        @touchcancel="VideoOp.handleTouchCancel"
+        @mouseup="VideoOp.handleMouseup"
+        @mouseleave="VideoOp.handleMouseleave"
+        @mouseout="VideoOp.handleMouseout"
+        @wheel="VideoOp.handleWheel"
+        @contextmenu="VideoOp.handleContextmenu"
       ></video>
     </div>
   </div>

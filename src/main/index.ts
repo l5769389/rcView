@@ -31,7 +31,6 @@ function loadConfig() {
 function createWindow(): void {
   // Create the browser window.
   let mainWindow
-  console.log(Config['IS_SERVER'])
   if (Config['IS_SERVER']) {
     mainWindow = new BrowserWindow({
       width: 700,
@@ -62,6 +61,7 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     if (Config.IS_SERVER_WINDOW_SHOW) {
       mainWindow.show()
+      mainWindow.openDevTools()
     }
   })
 

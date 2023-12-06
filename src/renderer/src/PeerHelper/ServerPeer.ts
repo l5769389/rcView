@@ -28,6 +28,7 @@ export class ServerPeer extends BasePeer {
   }
 
   connect2Server() {
+    console.log(this.HOST, this.PORT)
     this.peer = new Peer(this.MAINID, {
       host: this.HOST,
       port: this.PORT

@@ -1,13 +1,11 @@
 import { ConnectStateType, stateChangeCbType } from './PeerTypes'
 import { MediaConnection } from 'peerjs'
-import { config } from '@/config/config'
-
-console.log(`config: ${JSON.stringify(config)}`)
+import { getConfig } from '@config/config'
 
 export class BasePeer {
-  MAINID = config.SERVER_ID
-  HOST = config.SIGNAL_SERVER_IP
-  PORT = config.SIGNAL_SERVER_PORT
+  MAINID = ''
+  HOST = ''
+  PORT: number
   connectState: ConnectStateType = {
     connect2Server: false,
     connect2Peer: false,
@@ -21,6 +19,10 @@ export class BasePeer {
   connectStateChangeCb?: stateChangeCbType
 
   constructor(connectStateChangeCb?: stateChangeCbType) {
+    const config = getConfig()
+    this.MAINID = config['MAIN_PEER_SERVER_ID']
+    this.HOST = config['PEER_SIGNAL_SERVER_IP']
+    this.PORT = config['PEER_SIGNAL_SERVER_PORT']
     this.connectStateChangeCb = connectStateChangeCb
   }
 
