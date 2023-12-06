@@ -66,7 +66,7 @@ export const getDifferentWin = async () => {
     listenExit()
     startPyGrpc()
     await createGrpcClient()
-    log.log('createGrpcClient exec finish')
+    log.log('creraterGrpcClient exec finish')
   }
 }
 

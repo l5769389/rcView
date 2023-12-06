@@ -288,8 +288,8 @@ const handleCanplay = () => {
           <span class="mr-[10px]">信令服务器连接状态：</span>
           <n-switch v-model:value="connectState.connect2Server" size="large" disabled />
           <n-button v-if="!connectState.connect2Server" @click="connect2peer"
-            >连接信令服务器</n-button
-          >
+            >连接信令服务器
+          </n-button>
         </div>
         <div>
           <span class="mr-[10px]">远程桌面连接状态:</span>
@@ -341,10 +341,10 @@ const handleCanplay = () => {
         </n-button>
       </div>
     </div>
-    <div class="w-full h-full flex justify-center">
+    <div class="w-full h-full flex justify-center items-center">
       <video
         ref="remoteViewRef"
-        class="w-max-[100%] h-max-[100%] object-contain"
+        class="video object-contain"
         :class="isOperatorRef ? 'cursor-none' : ''"
         autoplay
         playsinline
@@ -366,4 +366,9 @@ const handleCanplay = () => {
   </div>
 </template>
 
-<style scoped></style>
+<style scoped>
+.video {
+  width: 100%;
+  height: calc(100% - 100px);
+}
+</style>
