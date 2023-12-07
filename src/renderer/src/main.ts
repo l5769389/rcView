@@ -3,6 +3,7 @@ import './assets/css/index.css'
 import App from './App.vue'
 
 import naive from 'naive-ui'
+
 const meta = document.createElement('meta')
 meta.name = 'naive-ui-style'
 document.head.appendChild(meta)

@@ -1,9 +1,9 @@
-import { app, shell, BrowserWindow } from 'electron'
+import { app, BrowserWindow, shell } from 'electron'
 import { join, resolve } from 'path'
-import { electronApp, optimizer, is } from '@electron-toolkit/utils'
+import { electronApp, is, optimizer } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getDifferentWin } from './helper'
-import { setConfig, getConfig } from '../config/config'
+import { getConfig, setConfig } from '../config/config'
 import * as fs from 'fs'
 import log from 'electron-log/main'
 

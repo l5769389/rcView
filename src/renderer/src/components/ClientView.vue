@@ -2,10 +2,10 @@
 import { onMounted, reactive, ref, watch } from 'vue'
 import _ from 'lodash'
 import type { PeerMsgType } from '@config/types'
+import { OpType } from '@config/types'
 import { ClientPeer } from '@renderer/PeerHelper/ClientPeer'
 import { ArrowMove20Filled } from '@vicons/fluent'
-import { Eye, AngleDoubleLeft, AngleDoubleRight } from '@vicons/fa'
-import { OpType } from '@config/types'
+import { AngleDoubleLeft, AngleDoubleRight, Eye } from '@vicons/fa'
 
 const remoteViewRef = ref()
 const isOperatorRef = ref(true)

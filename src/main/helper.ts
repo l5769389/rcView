@@ -1,11 +1,10 @@
-import { desktopCapturer, ipcMain, screen } from 'electron'
+import { app, desktopCapturer, ipcMain, screen } from 'electron'
 import { execSync, spawn } from 'child_process'
 import { join, resolve } from 'path'
 import { RobotMsgType } from '@config/types'
 import os from 'os'
 import { getConfig } from '../config/config'
 import log from 'electron-log/main'
-import { app } from 'electron'
 import grpc from '@grpc/grpc-js'
 
 const Config = getConfig()

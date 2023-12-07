@@ -2,7 +2,8 @@
 import ClientView from '@renderer/components/ClientView.vue'
 import ServerView from '@renderer/components/ServerView.vue'
 import { ref } from 'vue'
-import { setConfig, getConfig } from '../../config/config'
+import { getConfig, setConfig } from '../../config/config'
+
 const Config = JSON.parse(window['api'].readConfig())
 setConfig(Config)
 const config = getConfig()
