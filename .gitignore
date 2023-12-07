@@ -1,5 +1,5 @@
 node_modules
-dist
+/dist
 out
 *.log*
 .idea
@@ -7,5 +7,5 @@ out
 yarn.lock
 /thirdPartyProj/grpc-py/venv/*
 /thirdPartyProj/grpc-py/__pycache__/*
-/thirdPartyProj/grpc-py/dist/*
 /thirdPartyProj/grpc-py/build/*
+/thirdPartyProj/peerServer/dist/*
