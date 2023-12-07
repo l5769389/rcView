@@ -1,18 +1,26 @@
-import signal
-import sys
 import time
 from concurrent import futures
 import grpc
 import pyautogui
 
 import robotOp_pb2, robotOp_pb2_grpc
+import logging
 
+# 设置日志记录级别
+logging.basicConfig(level=logging.DEBUG)
+
+# 创建日志记录器
+logger = logging.getLogger(__name__)
+
+file_handler = logging.FileHandler('py-server.log')
+logger.addHandler(file_handler)
 
 
 class Handler(robotOp_pb2_grpc.robotOpServicer):
 
   def Opmouse(self, request, context):
     mouseType = request.mouseType
+    logger.info(f'mouseType: {mouseType}')
     if mouseType == 'mousemove':
       pyautogui.moveTo(request.x, request.y)
     elif mouseType == 'mousedown':
@@ -58,7 +66,7 @@ def run():
   robotOp_pb2_grpc.add_robotOpServicer_to_server(Handler(), server)
   server.add_insecure_port('0.0.0.0:50052')
   server.start()
-  print("start service...")
+  logger.info(f'grpc py server start')
   try:
     while True:
       time.sleep(60 * 60 * 24)

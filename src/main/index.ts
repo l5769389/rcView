@@ -3,10 +3,11 @@ import { join, resolve } from 'path'
 import { electronApp, optimizer, is } from '@electron-toolkit/utils'
 import icon from '../../resources/icon.png?asset'
 import { getDifferentWin } from './helper'
-import { setConfig, config as Config } from '../config/config'
+import { setConfig, getConfig } from '../config/config'
 import * as fs from 'fs'
 import log from 'electron-log/main'
 
+let Config
 init()
 
 async function init() {
@@ -26,6 +27,7 @@ function loadConfig() {
   jsonFile = fs.readFileSync(resolve(jsonFilePath), 'utf-8')
   const file = JSON.parse(jsonFile)
   setConfig(file)
+  Config = getConfig()
 }
 
 function createWindow(): void {
@@ -61,7 +63,9 @@ function createWindow(): void {
   mainWindow.on('ready-to-show', () => {
     if (Config.IS_SERVER_WINDOW_SHOW) {
       mainWindow.show()
-      mainWindow.openDevTools()
+      if (Config['SHOW_DEV_TOOLS']) {
+        mainWindow.openDevTools()
+      }
     }
   })
 

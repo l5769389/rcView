@@ -3,9 +3,12 @@ import { execSync, spawn } from 'child_process'
 import { join, resolve } from 'path'
 import { RobotMsgType } from '@config/types'
 import os from 'os'
-import { config as Config } from '../config/config'
+import { getConfig } from '../config/config'
 import log from 'electron-log/main'
 import { app } from 'electron'
+import grpc from '@grpc/grpc-js'
+
+const Config = getConfig()
 
 let client
 let basePath = ''
@@ -84,15 +87,19 @@ const getScreenSize = () => {
 }
 
 const createGrpcClient = async () => {
-  const grpc = await import('@grpc/grpc-js')
-  const { proto } = await import('./grpc/proto')
-  const ClientConstructor = grpc.makeClientConstructor(
-    (proto.robotOp as any).service,
-    'robotOp',
-    {}
-  )
-  client = new ClientConstructor(Config.GRPC_IP, grpc.credentials.createInsecure())
-  // client = new proto.robotOp(Config.GRPC_IP, grpc.credentials.createInsecure())
+  try {
+    log.log(`createGrpcClient: server ip : ${Config.GRPC_IP}`)
+    const { proto } = await import('./grpc/proto')
+    const ClientConstructor = grpc.makeClientConstructor(
+      (proto.robotOp as any).service,
+      'robotOp',
+      {}
+    )
+    client = new ClientConstructor(Config.GRPC_IP, grpc.credentials.createInsecure())
+  } catch (e) {
+    log.info('createGrpcClient error')
+    log.error(e)
+  }
 }
 
 const opCompute = async (msg: RobotMsgType) => {

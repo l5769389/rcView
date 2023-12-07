@@ -1,11 +1,19 @@
 import { contextBridge } from 'electron'
 import { electronAPI } from '@electron-toolkit/preload'
 import fs from 'fs'
-import { resolve } from 'path'
+import { join, resolve } from 'path'
+import log from 'electron-log/main'
 // Custom APIs for renderer
 const api = {
   readConfig: () => {
-    return fs.readFileSync(resolve(__dirname, '..', '..', './config/config.json'), 'utf-8')
+    let configPath
+    if (import.meta.env.PROD) {
+      configPath = join(__dirname, '..', '..', '..', '..', './config/config.json')
+    } else {
+      configPath = join(__dirname, '..', '..', './config/config.json')
+    }
+    log.log(`configPath:${configPath}`)
+    return fs.readFileSync(resolve(configPath), 'utf-8')
   }
 }
 // Use `contextBridge` APIs to expose Electron APIs to

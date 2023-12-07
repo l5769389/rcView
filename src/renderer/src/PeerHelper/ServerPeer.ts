@@ -28,7 +28,6 @@ export class ServerPeer extends BasePeer {
   }
 
   connect2Server() {
-    console.log(this.HOST, this.PORT)
     this.peer = new Peer(this.MAINID, {
       host: this.HOST,
       port: this.PORT
@@ -57,6 +56,7 @@ export class ServerPeer extends BasePeer {
           type,
           data: { x = -1, y = -1, mouseType, keys, deltaX, deltaY }
         } = data as PeerMsgType
+        log.log(`收到控制消息：${mouseType}`)
         if (type === 'operate') {
           const { x: mapX, y: mapY } = this.map2ScreenPosition(x, y)
           this.robotOp({

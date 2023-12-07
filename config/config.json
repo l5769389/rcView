@@ -4,5 +4,6 @@
   "PEER_SIGNAL_SERVER_PORT": 9000,
   "GRPC_IP": "127.0.0.1:50052",
   "IS_SERVER": true,
-  "IS_SERVER_WINDOW_SHOW": true
+  "IS_SERVER_WINDOW_SHOW": true,
+  "SHOW_DEV_TOOLS": false
 }
